@@ -1,0 +1,138 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@android:color/white"
+    tools:context=".SetinfoActivity" >
+    <LinearLayout
+        android:id="@+id/welcome_linearlayout_topbar"
+        android:layout_width="match_parent"
+        android:layout_height="44dp"
+        android:orientation="vertical"
+        android:gravity="center_vertical|center_horizontal"
+        android:background="@color/theme_color">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="名片信息"
+            android:textColor="@android:color/white"
+            android:textSize="20sp" />
+    
+    </LinearLayout>
+    
+    
+    <ScrollView 
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:scrollbars="none"
+        android:paddingBottom="10dp"
+        android:layout_below="@+id/welcome_linearlayout_topbar">
+
+   <RelativeLayout 
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent">      
+        
+    <LinearLayout
+        android:id="@+id/welcome_linearlayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
+        android:layout_below="@+id/welcome_textview_title"
+        android:orientation="vertical" >
+
+        <ImageView
+            android:id="@+id/welcome_imageview_avatar"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:layout_gravity="center_horizontal"
+            android:clickable="true"
+            android:src="@drawable/avatar_selector" />
+
+        <EditText
+            android:id="@+id/welcome_edittext_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:singleLine="true"
+            android:hint="姓名【必填】"
+            android:ems="10"
+            android:layout_marginTop="5dp">
+        </EditText>
+        
+        <EditText
+            android:id="@+id/welcome_edittext_mobile"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:singleLine="true"
+            android:hint="联系电话【必填】"
+            android:ems="10"
+            android:layout_marginTop="5dp">
+        </EditText>
+        
+        <EditText
+            android:id="@+id/welcome_edittext_mail"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:singleLine="true"
+            android:hint="邮箱地址【必填】"
+            android:ems="10"
+            android:layout_marginTop="5dp">
+        </EditText>
+        
+        <EditText
+            android:id="@+id/welcome_edittext_birth"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:singleLine="true"
+            android:hint="生日【选填】"
+            android:editable="false"
+            android:ems="10"
+            android:layout_marginTop="5dp">
+        </EditText>
+        
+        <EditText
+            android:id="@+id/welcome_edittext_profile"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:singleLine="true"
+            android:hint="职业信息(单位-职位)【选填】"
+            android:ems="10"
+            android:layout_marginTop="5dp">
+        </EditText>
+            
+
+    </LinearLayout>
+    
+    <Button
+        android:id="@+id/button1"
+        android:layout_marginLeft="50dp"
+        android:layout_marginRight="50dp"
+        android:layout_marginTop="45dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/welcome_linearlayout"
+        android:textColor="@android:color/white"
+        android:background="@drawable/normal_button"
+        android:text="确定" />
+
+    <TextView
+        android:id="@+id/welcome_textview_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_margin="20dp"
+        android:shadowColor="@android:color/darker_gray"
+        android:shadowDx="2"
+        android:shadowDy="2"
+        android:shadowRadius="5"
+        android:text="请完善您的名片信息"
+        android:textColor="@color/theme_color"
+        android:textSize="25sp"
+        android:typeface="serif" />
+    
+     </RelativeLayout>
+     
+    </ScrollView>
+
+</RelativeLayout>
