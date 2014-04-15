@@ -1,13 +1,25 @@
 package com.shake.app;
 
+import java.io.File;
+
 import android.app.Application;
 import android.content.SharedPreferences;
-
+import android.os.Environment;
 import com.shake.app.model.User;
+import com.shake.app.utils.FileUtil;
 
 public class HomeApp extends Application {	
 	
+	private String currentDirectory;
+	
+	private String internalStoragePath;
+	
+	private String picPath;
+	
+	private String cachePath; 
+	
 	private static HomeApp ApplicationInstance = null;
+	
 	private static User localuser = null;
 
 	/**
@@ -60,12 +72,107 @@ public class HomeApp extends Application {
 	{
 		localuser=user;
 	}
+	
+	/**
+	 * 取图片路径
+	 * @return
+	 */
+	public String getPicPath() {
+		return picPath;
+	}
+	
+	/**
+	 * 设图片路径
+	 * @param picPath
+	 */
+	public void setPicPath(String picPath) {
+		this.picPath = picPath;
+	}
+	/**
+	 * 判断 SDCard 是否存在
+	 */
+	public boolean isSDCardMounted() {
+		return Environment.MEDIA_MOUNTED.equals(Environment
+				.getExternalStorageState());
+	}
+	
+	/**
+	 * 内部存储路径初始化
+	 */
+	private void initInternalStoragePath() {
+		if (!isSDCardMounted()) {		
+			return;
+		}
+		for (String path : Define.INTERNAL_STORAGE_PATHS) {
+			if (FileUtil.isFileCanReadAndWrite(path)) {
+				internalStoragePath = path;
+				return;
+			} else {
+				File f = new File(path);
+				if (f.isDirectory()) {			
+					for (File file : f.listFiles()) {
+						if (file != null
+								&& file.isDirectory()
+								&& !file.isHidden()
+								&& FileUtil.isFileCanReadAndWrite(file
+										.getPath())) {
+							internalStoragePath = file.getPath();
+							if (!internalStoragePath.endsWith(File.separator)) {
+								internalStoragePath += File.separator;
+							}
+							return;
+						}
+					}
+				}
+			}
+		}
+	}
+
+	/**
+	 * 存储路径
+	 */
+	public void initStoragePath() {
+		initInternalStoragePath();
+		this.currentDirectory = this.getFilesDir().getAbsolutePath().concat(File.separator);
+		this.cachePath = this.currentDirectory + Define.CACHE_PATH;
+		this.picPath = this.currentDirectory + Define.PIC_PATH;
+
+		String storagePath = null;
+		if (isSDCardMounted()) {
+			storagePath = Environment.getExternalStorageDirectory()
+					.getAbsolutePath();
+		} else if (null != internalStoragePath) {
+			storagePath = internalStoragePath;
+		}
+
+		if (null != storagePath) {
+			if(Define.DEBUG){
+				this.cachePath = storagePath.concat(File.separator) + Define.CACHE_PATH;
+			}
+			this.picPath = storagePath.concat(File.separator) + Define.PIC_PATH;
+		}
+
+		File cacheDir = new File(this.cachePath);
+		if (!cacheDir.exists()) {
+			cacheDir.mkdirs();
+		}
+		File picDir = new File(this.picPath);
+		if (!picDir.exists()) {
+			picDir.mkdirs();
+		}
+	}
+	
 	@Override
 	public void onCreate() {
 		super.onCreate();
 		ApplicationInstance = this;		
+		initStoragePath();
 //		initImageLoader(getApplicationContext());		
 	}
+	
+	
+	
+	
 //	/**
 //	 * 初始化imageloader
 //	 * @param context

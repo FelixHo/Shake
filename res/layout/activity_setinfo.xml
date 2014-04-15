@@ -25,7 +25,6 @@
     <ScrollView 
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:scrollbars="none"
         android:paddingBottom="10dp"
         android:layout_below="@+id/welcome_linearlayout_topbar">
 
@@ -65,7 +64,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:singleLine="true"
-            android:hint="联系电话【必填】"
+            android:hint="手机号码【必填】"
+            android:inputType="number"
             android:ems="10"
             android:layout_marginTop="5dp">
         </EditText>
@@ -76,6 +76,7 @@
             android:layout_height="wrap_content"
             android:singleLine="true"
             android:hint="邮箱地址【必填】"
+            android:inputType="textEmailAddress"
             android:ems="10"
             android:layout_marginTop="5dp">
         </EditText>
@@ -100,12 +101,21 @@
             android:ems="10"
             android:layout_marginTop="5dp">
         </EditText>
-            
+        
+        <EditText
+            android:id="@+id/welcome_edittext_homesite"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:singleLine="true"
+            android:hint="个人主页【选填】"
+            android:ems="10"
+            android:layout_marginTop="5dp">
+        </EditText>    
 
     </LinearLayout>
     
     <Button
-        android:id="@+id/button1"
+        android:id="@+id/welcome_button_commit"
         android:layout_marginLeft="50dp"
         android:layout_marginRight="50dp"
         android:layout_marginTop="45dp"

@@ -4,6 +4,8 @@ import java.util.LinkedList;
 import java.util.List;
 import android.app.Activity;
 import android.app.Application;
+import android.content.Context;
+import android.content.Intent;
 
 /**
  * 维护app的所有Activity，退出时直接调用exit()
@@ -39,6 +41,13 @@ public class MyActivityManager extends Application
             activity.finish();
         }
         System.exit(0);
+    }
+    
+    public static void jump(Context from , Class<?> to)
+    {
+    	Intent introIntent = new Intent(from, to);
+		from.startActivity(introIntent);
+		((Activity)from).overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
     }
 
 }
