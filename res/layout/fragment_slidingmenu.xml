@@ -1,0 +1,75 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MenuFragment" >
+
+    <RelativeLayout
+        android:id="@+id/relativeLayout1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true" >
+
+        <ImageView
+            android:id="@+id/slidingmenu_imageview_avatar"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:layout_alignParentLeft="true"
+            android:layout_margin="5dp"
+            android:src="@drawable/avatar_selector" />
+
+        <TextView
+            android:id="@+id/slidingmenu_textview_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:shadowColor="@android:color/darker_gray"
+       		android:shadowDx="2"
+            android:shadowDy="2"
+            android:shadowRadius="5"
+            android:layout_margin="5dp"
+            android:layout_toRightOf="@+id/slidingmenu_imageview_avatar"
+            android:singleLine="true"
+            android:text="何俊浩"
+            android:textColor="@android:color/black"
+            android:textSize="25sp" />
+
+        <TextView
+            android:id="@+id/slidingmenu_textview_mobile"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignLeft="@+id/slidingmenu_textview_name"
+            android:layout_below="@+id/slidingmenu_textview_name"
+            android:layout_marginTop="5dp"
+            android:drawableLeft="@drawable/icon_contact"
+            android:ellipsize="end"
+            android:text="15989080970" />
+
+        <TextView
+            android:id="@+id/slidingmenu_textview_email"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignLeft="@+id/slidingmenu_textview_mobile"
+            android:layout_below="@+id/slidingmenu_textview_mobile"
+            android:drawableLeft="@drawable/icon_mail"
+            android:ellipsize="end"
+            android:singleLine="true"
+            android:text="hejunhao0830@gmail.com"
+            android:textSize="12sp" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="0.5dp"
+            android:layout_below="@+id/slidingmenu_imageview_avatar"
+            android:layout_margin="5dp"
+            android:background="@color/dark_gray" />
+    </RelativeLayout>
+
+    <ListView
+        android:id="@+id/slidingmenu_listview"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/relativeLayout1" >
+    </ListView>
+
+</RelativeLayout>

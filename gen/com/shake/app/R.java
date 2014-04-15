@@ -143,42 +143,67 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
          screen margins) for sw720dp devices (e.g. 10" tablets) in landscape here.
     
          */
-        public static final int activity_horizontal_margin=0x7f060000;
-        public static final int activity_vertical_margin=0x7f060001;
+        public static final int activity_horizontal_margin=0x7f060002;
+        public static final int activity_vertical_margin=0x7f060003;
+        public static final int list_item_padding=0x7f060001;
+        public static final int list_padding=0x7f060000;
+        public static final int shadow_width=0x7f060005;
+        public static final int slidingmenu_offset=0x7f060004;
     }
     public static final class drawable {
-        public static final int avatar_selector=0x7f020000;
-        public static final int blank_avatar=0x7f020001;
-        public static final int blank_avatar_pressed=0x7f020002;
-        public static final int ic_launcher=0x7f020003;
-        public static final int normal_button=0x7f020004;
+        public static final int avatar_bg=0x7f020000;
+        public static final int avatar_border=0x7f020001;
+        public static final int avatar_selector=0x7f020002;
+        public static final int blank_avatar=0x7f020003;
+        public static final int blank_avatar_pressed=0x7f020004;
+        public static final int empty_picture_144=0x7f020005;
+        public static final int ic_error=0x7f020006;
+        public static final int ic_launcher=0x7f020007;
+        public static final int icon_contact=0x7f020008;
+        public static final int icon_mail=0x7f020009;
+        public static final int normal_button=0x7f02000a;
+        public static final int right_arrow=0x7f02000b;
+        public static final int sliding_menu_shadow=0x7f02000c;
     }
     public static final class id {
-        public static final int action_settings=0x7f040012;
+        public static final int action_settings=0x7f04001b;
         public static final int fullscreen=0x7f040003;
         public static final int left=0x7f040000;
+        public static final int main_content_frame=0x7f040005;
         public static final int margin=0x7f040002;
+        public static final int menu_frame=0x7f040018;
+        public static final int relativeLayout1=0x7f040012;
         public static final int right=0x7f040001;
         public static final int selected_view=0x7f040004;
-        public static final int slidingmenumain=0x7f040011;
-        public static final int textView1=0x7f040010;
-        public static final int welcome_button_commit=0x7f04000f;
-        public static final int welcome_edittext_birth=0x7f04000c;
-        public static final int welcome_edittext_homesite=0x7f04000e;
-        public static final int welcome_edittext_mail=0x7f04000b;
-        public static final int welcome_edittext_mobile=0x7f04000a;
-        public static final int welcome_edittext_name=0x7f040009;
-        public static final int welcome_edittext_profile=0x7f04000d;
-        public static final int welcome_imageview_avatar=0x7f040008;
-        public static final int welcome_linearlayout=0x7f040006;
-        public static final int welcome_linearlayout_topbar=0x7f040005;
-        public static final int welcome_textview_title=0x7f040007;
+        public static final int slidingmenu_imageview_avatar=0x7f040013;
+        public static final int slidingmenu_item_name=0x7f040019;
+        public static final int slidingmenu_listview=0x7f040017;
+        public static final int slidingmenu_textview_email=0x7f040016;
+        public static final int slidingmenu_textview_mobile=0x7f040015;
+        public static final int slidingmenu_textview_name=0x7f040014;
+        public static final int slidingmenumain=0x7f04001a;
+        public static final int textView1=0x7f040011;
+        public static final int welcome_button_commit=0x7f040010;
+        public static final int welcome_edittext_birth=0x7f04000d;
+        public static final int welcome_edittext_homesite=0x7f04000f;
+        public static final int welcome_edittext_mail=0x7f04000c;
+        public static final int welcome_edittext_mobile=0x7f04000b;
+        public static final int welcome_edittext_name=0x7f04000a;
+        public static final int welcome_edittext_profile=0x7f04000e;
+        public static final int welcome_imageview_avatar=0x7f040009;
+        public static final int welcome_linearlayout=0x7f040007;
+        public static final int welcome_linearlayout_topbar=0x7f040006;
+        public static final int welcome_textview_title=0x7f040008;
     }
     public static final class layout {
         public static final int activity_main=0x7f030000;
         public static final int activity_setinfo=0x7f030001;
         public static final int activity_welcome=0x7f030002;
-        public static final int slidingmenumain=0x7f030003;
+        public static final int fragment_card=0x7f030003;
+        public static final int fragment_slidingmenu=0x7f030004;
+        public static final int sliding_menu=0x7f030005;
+        public static final int slidingmenu_item=0x7f030006;
+        public static final int slidingmenumain=0x7f030007;
     }
     public static final class menu {
         public static final int main=0x7f090000;
@@ -187,6 +212,7 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
     public static final class string {
         public static final int action_settings=0x7f070001;
         public static final int app_name=0x7f070000;
+        public static final int hello_blank_fragment=0x7f070005;
         public static final int hello_world=0x7f070002;
         public static final int title_activity_main=0x7f070004;
         public static final int title_activity_setinfo=0x7f070003;

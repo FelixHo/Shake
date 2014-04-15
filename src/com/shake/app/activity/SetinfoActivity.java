@@ -32,9 +32,10 @@ import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageView;
+
+import com.nostra13.universalimageloader.core.ImageLoader;
 import com.shake.app.Define;
 import com.shake.app.HomeApp;
-import com.shake.app.MainActivity;
 import com.shake.app.R;
 import com.shake.app.utils.ImageTools;
 import com.shake.app.utils.MyActivityManager;
@@ -133,11 +134,11 @@ public class SetinfoActivity extends Activity {
 				
 				if(checkComplete())
 				{
-					String birthday ="保密";
+					String birthday ="";
 					
-					String pro = "保密";
+					String pro = "";
 					
-					String site = "无";
+					String site = "";
 					
 					MySharedPreferences.SaveShared(Define.CONFINFO, Define.USER_INFO_NAME_KEY, name.getText().toString().trim(),false);
 					
@@ -149,7 +150,7 @@ public class SetinfoActivity extends Activity {
 					{
 						birthday = birth.getText().toString();
 					}
-					MySharedPreferences.SaveShared(Define.CONFINFO, Define.USER_INFO_NAME_KEY,birthday,false);
+					MySharedPreferences.SaveShared(Define.CONFINFO, Define.USER_INFO_BIRTH_KEY,birthday,false);
 					
 					if(!profile.getText().toString().trim().equals(""))
 					{
@@ -180,6 +181,14 @@ public class SetinfoActivity extends Activity {
 			}
 		});
 		
+		name.setText(MySharedPreferences.getShared(Define.CONFINFO, Define.USER_INFO_NAME_KEY, false));
+		mobile.setText(MySharedPreferences.getShared(Define.CONFINFO, Define.USER_INFO_MOBILE_KEY, false));
+		email.setText(MySharedPreferences.getShared(Define.CONFINFO, Define.USER_INFO_EMAIL_KEY, false));
+		birth.setText(MySharedPreferences.getShared(Define.CONFINFO, Define.USER_INFO_BIRTH_KEY, false));
+		profile.setText(MySharedPreferences.getShared(Define.CONFINFO, Define.USER_INFO_PROFILE_KEY, false));
+		homeSite.setText(MySharedPreferences.getShared(Define.CONFINFO, Define.USER_INFO_HOMESITE_KEY, false));
+		avatarPath = MySharedPreferences.getShared(Define.CONFINFO, Define.USER_INFO_AVATAR_KEY, false);
+		ImageLoader.getInstance().displayImage(Uri.fromFile(new File(avatarPath)).toString(), avatar);
 	}
 	
 	/**
@@ -401,7 +410,7 @@ public class SetinfoActivity extends Activity {
 						
 //						String savePicPath = HomeApp.getMyApplication().getPicPath() + "local_user_avatar.png";
 						
-						String savePicPath= ImageTools.savePhotoToSDCard(photo, HomeApp.getMyApplication().getPicPath() ,"local_user_avatar.png", 150);
+						String savePicPath= ImageTools.savePhotoToSDCard(photo, HomeApp.getMyApplication().getPicPath() ,"local_user_avatar_"+String.valueOf(System.currentTimeMillis())+".png", 150);
 //						FileUtil.copyFile(path, savePicPath);
 						
 						avatarPath = savePicPath;
@@ -474,7 +483,7 @@ public class SetinfoActivity extends Activity {
 					e.printStackTrace();
 				}
 				
-				String pic_path = ImageTools.savePhotoToSDCard(bitmapFromCamera, HomeApp.getMyApplication().getPicPath() ,"local_user_avatar.png", 150);
+				String pic_path = ImageTools.savePhotoToSDCard(bitmapFromCamera, HomeApp.getMyApplication().getPicPath() ,"local_user_avatar_"+String.valueOf(System.currentTimeMillis())+".png", 150);
 				
 				avatarPath =pic_path;
 

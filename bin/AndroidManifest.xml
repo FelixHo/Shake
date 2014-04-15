@@ -40,7 +40,7 @@
             android:label="@string/title_activity_setinfo" >
         </activity>
         <activity
-            android:name="com.shake.app.MainActivity"
+            android:name="com.shake.app.activity.MainActivity"
             android:label="@string/title_activity_main" >
         </activity>
     </application>

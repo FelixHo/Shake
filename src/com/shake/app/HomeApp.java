@@ -3,8 +3,17 @@ package com.shake.app;
 import java.io.File;
 
 import android.app.Application;
+import android.content.Context;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
 import android.os.Environment;
+import android.util.Log;
+
+import com.nostra13.universalimageloader.core.DisplayImageOptions;
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
+import com.nostra13.universalimageloader.core.assist.QueueProcessingType;
+import com.nostra13.universalimageloader.utils.StorageUtils;
 import com.shake.app.model.User;
 import com.shake.app.utils.FileUtil;
 
@@ -167,35 +176,49 @@ public class HomeApp extends Application {
 		super.onCreate();
 		ApplicationInstance = this;		
 		initStoragePath();
-//		initImageLoader(getApplicationContext());		
+		initImageLoader(getApplicationContext());		
+	}	
+	
+	/**
+	 * 初始化imageloader
+	 * @param context
+	 * @author Felix
+	 */
+	
+	public static void initImageLoader(Context context) {
+		DisplayImageOptions options = new DisplayImageOptions.Builder()        
+        .cacheInMemory(true)         
+        .cacheOnDisc(true)
+        .bitmapConfig(Bitmap.Config.RGB_565)
+        .showImageOnFail(R.drawable.ic_error)
+        .showImageOnLoading(R.drawable.empty_picture_144)
+        .showImageForEmptyUri(R.drawable.ic_error)
+        .build();
+		
+		ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(context)
+		.tasksProcessingOrder(QueueProcessingType.LIFO)
+		.defaultDisplayImageOptions(options)
+		.threadPoolSize(3)		
+		.build();
+		Log.d("cache存储路径",StorageUtils.getCacheDirectory(getMyApplication()).getAbsolutePath());
+		ImageLoader.getInstance().init(config);		
+		Log.i("initImageLoader", "初始化uil");
 	}
 	
-	
-	
-	
-//	/**
-//	 * 初始化imageloader
-//	 * @param context
-//	 * @author Felix
-//	 */
-//	
-//	public static void initImageLoader(Context context) {
-//		DisplayImageOptions options = new DisplayImageOptions.Builder()        
-//        .cacheInMemory(true)         
-//        .cacheOnDisc(true)
-//        .bitmapConfig(Bitmap.Config.RGB_565)
-//        .showImageOnFail(R.drawable.ic_error)
-//        .showStubImage(R.drawable.empty_picture_144)
-//        .showImageForEmptyUri(R.drawable.ic_error)
-//        .build();
-//		
-//		ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(context)
-//		.tasksProcessingOrder(QueueProcessingType.LIFO)
-//		.defaultDisplayImageOptions(options)
-//		.threadPoolSize(3)		
-//		.build();
-//		Log.d("cache存储路径",StorageUtils.getCacheDirectory(getMyApplication()).getAbsolutePath());
-//		ImageLoader.getInstance().init(config);		
-//		Log.i("initImageLoader", "初始化uil");
-//	}
+	/**
+	 * 返回一个没有cache的配置
+	 * @return
+	 */
+	public static DisplayImageOptions getDisplayOptionsWithNoCache()
+	{
+		DisplayImageOptions options = new DisplayImageOptions.Builder()        
+        .cacheInMemory(false)         
+        .cacheOnDisc(false)
+        .bitmapConfig(Bitmap.Config.RGB_565)
+        .showImageOnFail(R.drawable.ic_error)
+        .showImageOnLoading(R.drawable.empty_picture_144)
+        .showImageForEmptyUri(R.drawable.ic_error)
+        .build();
+		return options;
+	}
 }

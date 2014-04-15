@@ -7,7 +7,6 @@ import android.os.Handler;
 import android.os.Looper;
 
 import com.shake.app.HomeApp;
-import com.shake.app.MainActivity;
 import com.shake.app.R;
 import com.shake.app.utils.MyActivityManager;
 import com.shake.app.utils.MyWindowManager;
@@ -34,11 +33,13 @@ public class WelcomeActivity extends Activity {
 				} 
 				else
 				{
+					//测试用
 					Intent introIntent = new Intent(WelcomeActivity.this, SetinfoActivity.class);
-					HomeApp.getMyApplication().markLaunched();//标记应用已经启动过
 					startActivity(introIntent);
 					overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
-					//测试
+					
+					HomeApp.getMyApplication().markLaunched();//标记应用已经启动过
+					
 //					Intent mainIntent = new Intent(WelcomeActivity.this, MainActivity.class);
 //					startActivity(mainIntent);
 //					overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
