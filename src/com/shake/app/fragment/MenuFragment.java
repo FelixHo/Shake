@@ -2,8 +2,6 @@ package com.shake.app.fragment;
 
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
 
 import android.content.Context;
 import android.net.Uri;
@@ -12,11 +10,12 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
-
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.shake.app.Define;
 import com.shake.app.R;
@@ -40,6 +39,8 @@ public class MenuFragment extends Fragment {
 	private String[] menus = {"名片","联系人","图片","音乐","微博"};
 	
 	private MenuAdapter adapter;
+	
+	private Fragment frag;
 	
 	public MenuFragment() 
 	{
@@ -93,7 +94,21 @@ public class MenuFragment extends Fragment {
 			ImageLoader.getInstance().displayImage(Uri.fromFile(new File(_avatarpath)).toString(), avatar);
 		}
 		adapter = new MenuAdapter(getActivity(), menus);
-		listView.setAdapter(adapter);		
+		listView.setAdapter(adapter);	
+		listView.setOnItemClickListener(new OnItemClickListener() {
+
+			@Override
+			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+				
+				switch(position)
+				{
+					case 0: frag = new CardFragment(); break;
+					case 1: frag = new ContactFragment(); break;
+					default: frag = new CardFragment();break;
+				}
+				switchFragment(frag);				
+			}
+		});
 	}	
 	/**
 	 * 切换MainActivity的内容
@@ -123,7 +138,7 @@ public class MenuFragment extends Fragment {
 		private String[] menus;
 		
 		private LayoutInflater mInflater;
-
+		
 		public MenuAdapter(Context c,String[] data)
 		{
 			this.context = c;

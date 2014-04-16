@@ -1,6 +1,7 @@
 package com.shake.app;
 
 import java.io.File;
+import java.util.ArrayList;
 
 import android.app.Application;
 import android.content.Context;
@@ -14,6 +15,7 @@ import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.nostra13.universalimageloader.core.assist.QueueProcessingType;
 import com.nostra13.universalimageloader.utils.StorageUtils;
+import com.shake.app.model.Contact;
 import com.shake.app.model.User;
 import com.shake.app.utils.FileUtil;
 
@@ -30,6 +32,19 @@ public class HomeApp extends Application {
 	private static HomeApp ApplicationInstance = null;
 	
 	private static User localuser = null;
+	
+	private static ArrayList<Contact> contactsList = null;
+
+	public static ArrayList<Contact> getContactsList() {
+		
+		return contactsList;
+	}
+	
+	public static void setContactsList(ArrayList<Contact> contactsList) {
+		
+		HomeApp.contactsList = contactsList;
+	}
+
 
 	/**
 	 * 检查程序是否第一次启动。
