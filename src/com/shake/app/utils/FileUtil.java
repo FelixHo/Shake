@@ -709,4 +709,16 @@ public class FileUtil {
 	    }
 	    return lenStr;
 	}
+	
+	/**
+	 * 根据路径地址获取Uri的字符串值
+	 * @param path
+	 * @return
+	 */
+	public static String getUriStringByPath(String path)
+	{
+		String uri = Uri.fromFile(new File(path)).toString();
+		
+		return Uri.decode(uri);
+	}
 }

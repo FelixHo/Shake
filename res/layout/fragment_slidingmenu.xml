@@ -16,6 +16,7 @@
             android:layout_height="100dp"
             android:layout_alignParentLeft="true"
             android:layout_margin="5dp"
+            android:scaleType="fitXY"
             android:src="@drawable/avatar_selector" />
 
         <TextView

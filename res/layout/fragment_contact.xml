@@ -1,0 +1,54 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".ContactFragment" >    
+     <ListView
+        android:id="@+id/contact_frag_listview"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fastScrollEnabled="true"
+        android:layout_below="@+id/contact_frag_title_layout">
+    </ListView>
+
+        <LinearLayout
+        android:id="@+id/contact_listview_topbar"
+        android:layout_width="match_parent"
+        android:layout_height="30dp"
+        android:background="@color/theme_blue"
+        android:gravity="center_vertical"
+        android:visibility="visible"
+        android:layout_below="@+id/contact_frag_title_layout"  
+        android:orientation="vertical" >
+
+        <TextView
+            android:id="@+id/contact_listview_topbar_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"     
+            android:layout_margin="5dp"
+            android:textColor="@android:color/white" 
+            android:textAppearance="?android:attr/textAppearanceMedium" 
+            android:text="A" />
+      </LinearLayout>
+      
+      <RelativeLayout
+        android:id="@+id/contact_frag_title_layout"
+        android:layout_width="match_parent"
+        android:layout_height="44dp"
+        android:layout_alignParentTop="true"
+        android:background="@color/theme_color" >
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true"
+            android:text="联系人"
+            android:textColor="@android:color/white"
+            android:textSize="25sp"
+            android:textStyle="bold" />
+    </RelativeLayout>
+    
+   
+
+</RelativeLayout>

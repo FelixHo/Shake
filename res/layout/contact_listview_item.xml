@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <LinearLayout
+        android:id="@+id/contact_listview_divider_layout"
+        android:layout_width="match_parent"
+        android:layout_height="30dp"
+        android:background="@color/theme_blue"
+        android:layout_alignParentTop="true"      
+        android:gravity="center_vertical"
+        android:visibility="gone"  
+        android:orientation="vertical" >
+
+        <TextView
+            android:id="@+id/contact_listview_divider_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"     
+            android:layout_margin="5dp"
+            android:textColor="@android:color/white" 
+            android:textAppearance="?android:attr/textAppearanceMedium" 
+            android:text="A" />
+
+    </LinearLayout>
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingBottom="5dp"
+        android:layout_below="@+id/contact_listview_divider_layout" >
+    <ImageView
+        android:id="@+id/contact_listview_item_avatar"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_margin="5dp"
+        android:layout_alignParentLeft="true"
+        android:src="@drawable/contact_noavatar"/>
+
+    <TextView
+        android:id="@+id/contact_listview_item_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_margin="5dp"
+        android:singleLine="true"
+        android:ellipsize="end"
+        android:layout_toRightOf="@+id/contact_listview_item_avatar"
+        android:layout_toLeftOf="@+id/contact_listview_item_mobile"
+        android:textSize="15sp"
+        android:typeface="serif"
+        android:textColor="@android:color/background_dark"
+        android:shadowColor="@android:color/darker_gray"
+        android:shadowDx="2"
+        android:shadowDy="2"
+        android:shadowRadius="5"
+        android:text="何俊浩" />
+
+    <TextView
+        android:id="@+id/contact_listview_item_mobile"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_centerVertical="true"
+        android:layout_marginRight="20dp"
+        android:singleLine="true"
+        android:ellipsize="end"
+        android:textColor="@color/dark_gray"
+        android:drawableLeft="@drawable/icon_contact"
+        android:text="15989080970" />
+    
+    </RelativeLayout>
+    
+</RelativeLayout>

@@ -6,6 +6,10 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 
 import android.annotation.TargetApi;
 import android.content.Context;
@@ -27,6 +31,7 @@ import android.graphics.RectF;
 import android.graphics.Shader.TileMode;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
@@ -655,4 +660,186 @@ public final class ImageTools {
 
 				return false;
 			}
+			
+			/**
+			 * 返回指定路径指定大小的一个图的drawable
+			 * @param context
+			 * @param path
+			 * @param targetWidth
+			 * @param targetHeight
+			 * @return
+			 */
+			public static Drawable  getResizeDrawableByPath(Context context,String path, int targetWidth,int targetHeight)
+			{
+				Drawable d = Drawable.createFromPath(path);
+				Bitmap b = ((BitmapDrawable)d).getBitmap();
+			    Bitmap bitmapResized = Bitmap.createScaledBitmap(b, targetWidth, targetHeight, false);
+				Drawable result = new BitmapDrawable(context.getResources(), bitmapResized);
+				b=null;
+				bitmapResized = null;
+				return result;
+			}
+			
+			/**
+			 * 缩放drawable大小
+			 * @param context
+			 * @param drawable
+			 * @param w
+			 * @param h
+			 * @return
+			 */
+			public static Drawable resizeDrawable(Context context,Drawable drawable,int w,int h)
+			{
+				Bitmap b = ((BitmapDrawable)drawable).getBitmap();
+			    Bitmap bitmapResized = Bitmap.createScaledBitmap(b, w, h, false);
+				Drawable result = new BitmapDrawable(context.getResources(), bitmapResized);
+				b=null;
+				bitmapResized = null;
+				return result;
+			}
+			/**
+			 * 返回方向正确的bitmap
+			 * @param src 图片路径
+			 * @param bitmap 源图片
+			 * @return
+			 */
+			public static Bitmap rotateBitmap(String src, Bitmap bitmap) {
+		        try {
+		            int orientation = getExifOrientation(src);
+		            
+		            if (orientation == 1) {
+		                return bitmap;
+		            }
+		            
+		            Matrix matrix = new Matrix();
+		            switch (orientation) {
+		            case 2:
+		                matrix.setScale(-1, 1);
+		                break;
+		            case 3:
+		                matrix.setRotate(180);
+		                break;
+		            case 4:
+		                matrix.setRotate(180);
+		                matrix.postScale(-1, 1);
+		                break;
+		            case 5:
+		                matrix.setRotate(90);
+		                matrix.postScale(-1, 1);
+		                break;
+		            case 6:
+		                matrix.setRotate(90);
+		                break;
+		            case 7:
+		                matrix.setRotate(-90);
+		                matrix.postScale(-1, 1);
+		                break;
+		            case 8:
+		                matrix.setRotate(-90);
+		                break;
+		            default:
+		                return bitmap;
+		            }
+		            
+		            try {
+		                Bitmap oriented = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, false);
+		                bitmap=null;
+		                return oriented;
+		            } catch (OutOfMemoryError e) {
+		                e.printStackTrace();
+		                return bitmap;
+		            }
+		        } catch (IOException e) {
+		            e.printStackTrace();
+		        } 
+		        
+		        return bitmap;
+		    }
+		    
+		    private static int getExifOrientation(String src) throws IOException {
+		        int orientation = 1;
+		        
+		        try {
+		            /**
+		             * if your are targeting only api level >= 5
+		             * ExifInterface exif = new ExifInterface(src);
+		             * orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, 1);
+		             */
+		            if (Build.VERSION.SDK_INT >= 5) {
+		                Class<?> exifClass = Class.forName("android.media.ExifInterface");
+		                Constructor<?> exifConstructor = exifClass.getConstructor(new Class[] { String.class });
+		                Object exifInstance = exifConstructor.newInstance(new Object[] { src });
+		                Method getAttributeInt = exifClass.getMethod("getAttributeInt", new Class[] { String.class, int.class });
+		                Field tagOrientationField = exifClass.getField("TAG_ORIENTATION");
+		                String tagOrientation = (String) tagOrientationField.get(null);
+		                orientation = (Integer) getAttributeInt.invoke(exifInstance, new Object[] { tagOrientation, 1});
+		            }
+		        } catch (ClassNotFoundException e) {
+		            e.printStackTrace();
+		        } catch (SecurityException e) {
+		            e.printStackTrace();
+		        } catch (NoSuchMethodException e) {
+		            e.printStackTrace();
+		        } catch (IllegalArgumentException e) {
+		            e.printStackTrace();
+		        } catch (InstantiationException e) {
+		            e.printStackTrace();
+		        } catch (IllegalAccessException e) {
+		            e.printStackTrace();
+		        } catch (InvocationTargetException e) {
+		            e.printStackTrace();
+		        } catch (NoSuchFieldException e) {
+		            e.printStackTrace();
+		        }
+		        
+		        return orientation;
+		    }
+		    /**
+		     * 返回方向正确的bitmap 方法2
+		     * @param path
+		     * @param srcBitmap
+		     * @return
+		     */
+		    public static Bitmap getCorrectOrientationBitmap(String path,Bitmap srcBitmap)
+		    {
+		    	//调整照片的方向
+				ExifInterface exif1;
+				try {
+					exif1 = new ExifInterface(path);
+				
+		          int exifOrientation = exif1.getAttributeInt(
+		          ExifInterface.TAG_ORIENTATION,
+		          ExifInterface.ORIENTATION_NORMAL);
+
+		          int rotate = 0;
+
+		          switch (exifOrientation) 
+		         {
+
+		          case ExifInterface.ORIENTATION_ROTATE_90:
+		          rotate = 90;
+		          break; 
+
+		          case ExifInterface.ORIENTATION_ROTATE_180:
+		          rotate = 180;
+		          break;
+
+		          case ExifInterface.ORIENTATION_ROTATE_270:
+		          rotate = 270;
+		          break;
+		         }
+		          if (rotate != 0) 
+		          {
+		              int w = srcBitmap.getWidth();
+		              int h = srcBitmap.getHeight();
+		              Matrix mtx = new Matrix();
+		              mtx.preRotate(rotate);
+
+		              srcBitmap = Bitmap.createBitmap(srcBitmap, 0, 0, w, h, mtx, false);
+		           }
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+				return srcBitmap;
+		    }
 }

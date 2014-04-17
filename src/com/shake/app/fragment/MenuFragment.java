@@ -104,6 +104,7 @@ public class MenuFragment extends Fragment {
 				{
 					case 0: frag = new CardFragment(); break;
 					case 1: frag = new ContactFragment(); break;
+					case 2: frag = new ImageFragment();break;
 					default: frag = new CardFragment();break;
 				}
 				switchFragment(frag);				

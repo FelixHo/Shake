@@ -2,6 +2,8 @@ package com.shake.app;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 import android.app.Application;
 import android.content.Context;
@@ -33,7 +35,9 @@ public class HomeApp extends Application {
 	
 	private static User localuser = null;
 	
-	private static ArrayList<Contact> contactsList = null;
+	private static ArrayList<Contact> contactsList = null;//联系人数据表
+	
+	private static HashMap<String,List<String>> imageGroupMap = null;//本地图片分组数据
 
 	public static ArrayList<Contact> getContactsList() {
 		
@@ -45,6 +49,14 @@ public class HomeApp extends Application {
 		HomeApp.contactsList = contactsList;
 	}
 
+
+	public static HashMap<String, List<String>> getImageGroupMap() {
+		return imageGroupMap;
+	}
+
+	public static void setImageGroupMap(HashMap<String, List<String>> imageGroupMap) {
+		HomeApp.imageGroupMap = imageGroupMap;
+	}
 
 	/**
 	 * 检查程序是否第一次启动。
@@ -213,7 +225,7 @@ public class HomeApp extends Application {
 		ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(context)
 		.tasksProcessingOrder(QueueProcessingType.LIFO)
 		.defaultDisplayImageOptions(options)
-		.threadPoolSize(3)		
+		.threadPoolSize(3)	
 		.build();
 		Log.d("cache存储路径",StorageUtils.getCacheDirectory(getMyApplication()).getAbsolutePath());
 		ImageLoader.getInstance().init(config);		

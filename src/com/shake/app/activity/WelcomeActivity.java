@@ -34,15 +34,15 @@ public class WelcomeActivity extends Activity {
 				else
 				{
 					//测试用
-					Intent introIntent = new Intent(WelcomeActivity.this, SetinfoActivity.class);
-					startActivity(introIntent);
-					overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+//					Intent introIntent = new Intent(WelcomeActivity.this, SetinfoActivity.class);
+//					startActivity(introIntent);
+//					overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
 					
 					HomeApp.getMyApplication().markLaunched();//标记应用已经启动过
 					
-//					Intent mainIntent = new Intent(WelcomeActivity.this, MainActivity.class);
-//					startActivity(mainIntent);
-//					overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+					Intent mainIntent = new Intent(WelcomeActivity.this, MainActivity.class);
+					startActivity(mainIntent);
+					overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
 
 				}
 				finish();
