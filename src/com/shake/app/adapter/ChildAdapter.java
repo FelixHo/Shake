@@ -8,6 +8,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -21,6 +22,7 @@ import android.widget.Toast;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.assist.FailReason;
 import com.nostra13.universalimageloader.core.assist.ImageLoadingListener;
+import com.nostra13.universalimageloader.core.assist.ImageSize;
 import com.shake.app.R;
 import com.shake.app.activity.CheckPhotoActivity;
 import com.shake.app.utils.FileUtil;
@@ -91,7 +93,7 @@ public class ChildAdapter extends BaseAdapter {
 				new AlertDialog.Builder(mContext)
 				.setTitle(FileUtil.getFileName(path))
 				.setIcon(icon)
-				.setItems(new String[] {"传送","查看大图"},
+				.setItems(new String[] {"分享给朋友","查看大图"},
 				 new DialogInterface.OnClickListener() {
 
 				public void onClick(DialogInterface dialog,	int which) {
@@ -115,19 +117,20 @@ public class ChildAdapter extends BaseAdapter {
 				}).setNegativeButton("取消",null).show();
 			}
 		});
+
 		ImageLoader.getInstance().displayImage(FileUtil.getUriStringByPath(path),holder.mImageView,new ImageLoadingListener() {
 			
 			@Override
 			public void onLoadingStarted(String imageUri, View view) {}
 			
 			@Override
-			public void onLoadingFailed(String imageUri, View view,
-					FailReason failReason) {}
+			public void onLoadingFailed(String imageUri, View view,	FailReason failReason) {}
 			
 			@Override
 			public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
 				
 				Bitmap bp  =ImageTools.getCorrectOrientationBitmap(path, loadedImage);
+				loadedImage = null;
 				((ImageView)view).setImageBitmap(bp);
 			}
 			

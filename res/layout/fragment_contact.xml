@@ -47,6 +47,13 @@
             android:textColor="@android:color/white"
             android:textSize="25sp"
             android:textStyle="bold" />
+        <Button
+            android:id="@+id/contact_frag_menu_button"
+            android:layout_width="65dp"
+            android:layout_height="match_parent"
+            android:background="@drawable/menu_button_selector"
+            android:layout_alignParentLeft="true"
+            android:layout_centerVertical="true"/>
     </RelativeLayout>
     
    

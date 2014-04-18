@@ -18,6 +18,7 @@ import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.nostra13.universalimageloader.core.assist.QueueProcessingType;
 import com.nostra13.universalimageloader.utils.StorageUtils;
 import com.shake.app.model.Contact;
+import com.shake.app.model.Song;
 import com.shake.app.model.User;
 import com.shake.app.utils.FileUtil;
 
@@ -37,6 +38,11 @@ public class HomeApp extends Application {
 	
 	private static ArrayList<Contact> contactsList = null;//联系人数据表
 	
+	private static ArrayList<Song> songList = null;//歌曲列表
+	
+	/**
+	 * HashMap<文件夹名称、文件夹下所有图片的地址>
+	 */
 	private static HashMap<String,List<String>> imageGroupMap = null;//本地图片分组数据
 
 	public static ArrayList<Contact> getContactsList() {
@@ -56,6 +62,14 @@ public class HomeApp extends Application {
 
 	public static void setImageGroupMap(HashMap<String, List<String>> imageGroupMap) {
 		HomeApp.imageGroupMap = imageGroupMap;
+	}
+
+	public static ArrayList<Song> getSongList() {
+		return songList;
+	}
+
+	public static void setSongList(ArrayList<Song> songList) {
+		HomeApp.songList = songList;
 	}
 
 	/**

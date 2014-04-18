@@ -53,7 +53,7 @@
             android:layout_alignLeft="@+id/slidingmenu_textview_mobile"
             android:layout_below="@+id/slidingmenu_textview_mobile"
             android:drawableLeft="@drawable/icon_mail"
-            android:ellipsize="end"
+            android:ellipsize="marquee"
             android:singleLine="true"
             android:text="hejunhao0830@gmail.com"
             android:textSize="12sp" />

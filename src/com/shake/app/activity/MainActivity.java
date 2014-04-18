@@ -79,7 +79,7 @@ public class MainActivity extends SlidingFragmentActivity {
 		setBehindContentView(R.layout.sliding_menu);
 		getSupportFragmentManager()
 		.beginTransaction()
-		.replace(R.id.menu_frame, new MenuFragment())
+		.replace(R.id.menu_frame, new MenuFragment(),"mMenuFragment")
 		.commit();
 		sm = getSlidingMenu();
 		sm.setBehindOffsetRes(R.dimen.slidingmenu_offset);

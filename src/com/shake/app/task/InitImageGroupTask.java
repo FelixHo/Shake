@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+
 import android.content.ContentResolver;
 import android.content.Context;
 import android.database.Cursor;
@@ -12,6 +13,7 @@ import android.os.AsyncTask;
 import android.os.Handler;
 import android.provider.MediaStore;
 import android.provider.MediaStore.Audio.Media;
+
 import com.shake.app.HomeApp;
 
 /**
@@ -23,6 +25,8 @@ public class InitImageGroupTask extends AsyncTask<Context, String, HashMap<Strin
 {
 
 
+	private boolean isNewData = false;
+	
 	public interface OnTaskListener
 	{
 		public void onTaskStart();
@@ -117,6 +121,7 @@ public class InitImageGroupTask extends AsyncTask<Context, String, HashMap<Strin
 		mCursor.close();
 		
 		HomeApp.setImageGroupMap(mGroupMap);
+		isNewData = true;
 		
 		return mGroupMap;
 	}
@@ -131,8 +136,24 @@ public class InitImageGroupTask extends AsyncTask<Context, String, HashMap<Strin
 	@Override
 	protected void onPostExecute(HashMap<String, List<String>> result) {
 		super.onPostExecute(result);
-		if(listener!=null)
-		this.listener.onTaskFinished(mGroupMap);
+		
+		if(isNewData)//这里延迟仅仅为了使画面更顺畅
+		{
+			new Handler().postDelayed(new Runnable() {
+				
+				@Override
+				public void run() {
+					if(listener!=null)
+					listener.onTaskFinished(mGroupMap);
+				}
+			}, 500);
+		}
+		else
+		{
+			if(listener!=null)
+			listener.onTaskFinished(mGroupMap);
+		}
+		
 	}
 
 

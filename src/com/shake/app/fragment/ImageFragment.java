@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
@@ -12,11 +13,15 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.View.OnClickListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.Button;
 import android.widget.GridView;
+
 import com.shake.app.HomeApp;
 import com.shake.app.R;
+import com.shake.app.activity.MainActivity;
 import com.shake.app.activity.ShowPhotosActivity;
 import com.shake.app.adapter.GroupAdapter;
 import com.shake.app.model.ImageBean;
@@ -40,6 +45,8 @@ public class ImageFragment extends Fragment {
 	private List<ImageBean> groupList ;
 	
 	private GroupAdapter adapter;
+	
+	private Button menuBtn;
 	
 	public ImageFragment() {
 		
@@ -107,6 +114,7 @@ public class ImageFragment extends Fragment {
 	private void setupView()
 	{
 		groupGrid = (GridView)layout.findViewById(R.id.image_frag_gridview);
+		menuBtn = (Button)layout.findViewById(R.id.image_frag_menu_button);
 	}
 	
 	private void initView()
@@ -123,6 +131,15 @@ public class ImageFragment extends Fragment {
 				intent.putStringArrayListExtra(ShowPhotosActivity.SHOW_PHOTO_DATA_KEY, (ArrayList<String>)photoPaths);
 				startActivity(intent);
 				getActivity().overridePendingTransition(R.anim.scale_in, android.R.anim.fade_out);
+			}
+		});
+		
+		menuBtn.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				
+				((MainActivity)getActivity()).toggleMenu();
 			}
 		});
 	}

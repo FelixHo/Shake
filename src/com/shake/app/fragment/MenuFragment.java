@@ -36,7 +36,7 @@ public class MenuFragment extends Fragment {
 	
 	private ListView listView;
 	
-	private String[] menus = {"名片","联系人","图片","音乐","微博"};
+	private String[] menus = {"名片录","联系人","我的图库","我的音乐","微博"};
 	
 	private MenuAdapter adapter;
 	
@@ -87,6 +87,7 @@ public class MenuFragment extends Fragment {
 		if(!_email.equals(""))
 		{
 			email.setText(_email);
+			email.setSelected(true);
 		}
 		String _avatarpath = MySharedPreferences.getShared(Define.CONFINFO, Define.USER_INFO_AVATAR_KEY, false);
 		if(!_avatarpath.equals(""))
@@ -105,6 +106,7 @@ public class MenuFragment extends Fragment {
 					case 0: frag = new CardFragment(); break;
 					case 1: frag = new ContactFragment(); break;
 					case 2: frag = new ImageFragment();break;
+					case 3: frag = new MusicFragment();break;
 					default: frag = new CardFragment();break;
 				}
 				switchFragment(frag);				
@@ -127,6 +129,14 @@ public class MenuFragment extends Fragment {
 		}
 	}
 	
+	/**
+	 * 刷新菜单数据，主要针对名片编辑后更新头部信息
+	 * 
+	 */
+	public void refreshMenu()
+	{
+		initView();
+	}
 	/**
 	 * 菜单项适配器
 	 * @author Felix

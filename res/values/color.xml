@@ -11,6 +11,10 @@
     <color name="sliding_item_child_color">#363333</color>  
     <color name="theme_color">#FD3A3A</color>
     <color name="theme_color_pressed">#E80202</color>
+    <color name="light_green">#33CC33</color>
+    <color name="light_green_pressed">#009900</color>
+    <color name="pink">#FF9999</color>
+    <color name="pink_pressed">#FF6666</color>
 
 </resources>
 

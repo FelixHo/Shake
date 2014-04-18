@@ -2,25 +2,39 @@ package com.shake.app.fragment;
 
 import java.util.ArrayList;
 
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.ViewGroup.MarginLayoutParams;
 import android.widget.AbsListView;
 import android.widget.AbsListView.OnScrollListener;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
+import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 
 import com.shake.app.HomeApp;
 import com.shake.app.R;
+import com.shake.app.activity.MainActivity;
 import com.shake.app.adapter.ContactAdapter;
 import com.shake.app.model.Contact;
 import com.shake.app.task.InitContactsTask;
 import com.shake.app.task.InitContactsTask.onTaskListener;
+import com.shake.app.utils.ImageTools;
+import com.shake.app.utils.MyToast;
+import com.shake.app.utils.ViewUtil;
 
 public class ContactFragment extends Fragment {
 	
@@ -40,6 +54,8 @@ public class ContactFragment extends Fragment {
     private InitContactsTask task;
     
     private ProgressDialog dialog;
+    
+    private Button menuBtn;
     
     /**
 	 * 上次第一个可见元素，用于滚动时记录标识。
@@ -105,6 +121,7 @@ public class ContactFragment extends Fragment {
 		listView = (ListView)layout.findViewById(R.id.contact_frag_listview);
 		titleLayout = (LinearLayout)layout.findViewById(R.id.contact_listview_topbar);
 		title = (TextView)layout.findViewById(R.id.contact_listview_topbar_label);
+		menuBtn = (Button)layout.findViewById(R.id.contact_frag_menu_button);
 	}
 	
 	private void initView()
@@ -156,6 +173,74 @@ public class ContactFragment extends Fragment {
 					}
 				}
 				lastFirstVisibleItem = firstVisibleItem;
+			}
+		});
+		
+		listView.setOnItemClickListener(new OnItemClickListener() {
+
+			@Override
+			public void onItemClick(AdapterView<?> arg0, View view, int position,long id) {
+				
+				final Contact contact = adapter.getCurrentContact(position);
+				
+				final String[] numbers = contact.getNumbers().toArray(new String[contact.getNumbers().size()]);
+				
+				Drawable icon;
+				if(contact.getAvatar()!=null)
+				{
+					icon = new BitmapDrawable(getActivity().getResources(),contact.getAvatar());
+				}
+				else
+				{
+					icon = getResources().getDrawable(R.drawable.contact_noavatar);
+				}
+				icon = ImageTools.resizeDrawable(getActivity(), icon, ViewUtil.dp(60),ViewUtil.dp(60));
+				
+				new AlertDialog.Builder(getActivity())
+				.setTitle(contact.getName())
+				.setIcon(icon)
+				.setItems(numbers, new DialogInterface.OnClickListener() {
+					
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						
+						final String number = numbers[which];
+						final String name = contact.getName();
+						
+						new AlertDialog.Builder(getActivity())
+						.setMessage("是否拨打 "+number+"("+name+")?")
+						.setPositiveButton("确定", new DialogInterface.OnClickListener() {
+							
+							@Override
+							public void onClick(DialogInterface dialog, int which) {
+								Intent call = new Intent(Intent.ACTION_CALL,Uri.parse("tel:"+number));
+								startActivity(call);
+							}
+						})
+						.setNegativeButton("取消", null)
+						.show()
+						.setCanceledOnTouchOutside(true);						
+					}
+				})
+				.setNegativeButton("取消", null)
+				.setPositiveButton("传给朋友", new DialogInterface.OnClickListener() {
+					
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						MyToast.alert("Coming soon");
+					}
+				} )
+				.show()
+				.setCanceledOnTouchOutside(true);
+			}
+		});
+		
+		menuBtn.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				
+				((MainActivity)getActivity()).toggleMenu();
 			}
 		});
 	}	

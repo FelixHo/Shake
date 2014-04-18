@@ -58,6 +58,11 @@ public	class ContactAdapter extends BaseAdapter implements SectionIndexer
 				return '#';
 			}
 		}
+		
+		public Contact getCurrentContact(int position)
+		{
+			return mContacts.get(position);
+		}
 
 		@Override
 		public long getItemId(int position) {			

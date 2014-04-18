@@ -16,10 +16,17 @@
             android:layout_height="wrap_content"
             android:layout_centerHorizontal="true"
             android:layout_centerVertical="true"
-            android:text="图片"
+            android:text="我的图库"
             android:textColor="@android:color/white"
             android:textSize="25sp"
             android:textStyle="bold" />
+        <Button
+            android:id="@+id/image_frag_menu_button"
+            android:layout_width="65dp"
+            android:layout_height="match_parent"
+            android:background="@drawable/menu_button_selector"
+            android:layout_alignParentLeft="true"
+            android:layout_centerVertical="true"/>
     </RelativeLayout>
     
     <GridView

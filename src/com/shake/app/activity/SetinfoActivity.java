@@ -7,16 +7,17 @@ import java.util.Date;
 import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.DatePickerDialog.OnDateSetListener;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.media.ExifInterface;
 import android.net.Uri;
@@ -37,6 +38,8 @@ import com.nostra13.universalimageloader.core.ImageLoader;
 import com.shake.app.Define;
 import com.shake.app.HomeApp;
 import com.shake.app.R;
+import com.shake.app.fragment.CardFragment;
+import com.shake.app.utils.FileUtil;
 import com.shake.app.utils.ImageTools;
 import com.shake.app.utils.MyActivityManager;
 import com.shake.app.utils.MySharedPreferences;
@@ -77,11 +80,14 @@ public class SetinfoActivity extends Activity {
 	
 	private String avatarPath="";
 	
+	private boolean isEdit = false;
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		MyWindowManager.setFullScreenWithNoTitle(this);
 		setContentView(R.layout.activity_setinfo);
+		isEdit = getIntent().getBooleanExtra(CardFragment.EDIT_REQUEST_KEY, false);
 		initDate();
 		setupView();
 		initView();
@@ -166,9 +172,17 @@ public class SetinfoActivity extends Activity {
 
 					MySharedPreferences.SaveShared(Define.CONFINFO, Define.USER_INFO_AVATAR_KEY, avatarPath,false);
 					
-					MyActivityManager.jump(SetinfoActivity.this, MainActivity.class);
+					if(isEdit)
+					{
+						setResult(RESULT_OK);
+						finish();
+					}
+					else
+					{
+						MyActivityManager.jump(SetinfoActivity.this, MainActivity.class);
+						finish();
+					}
 					
-					finish();
 				}
 			}
 		});
@@ -180,7 +194,10 @@ public class SetinfoActivity extends Activity {
 				showPicturePicker(SetinfoActivity.this);
 			}
 		});
-		
+		if(isEdit)
+		{
+			commit.setText("编辑完成");
+		}
 		name.setText(MySharedPreferences.getShared(Define.CONFINFO, Define.USER_INFO_NAME_KEY, false));
 		mobile.setText(MySharedPreferences.getShared(Define.CONFINFO, Define.USER_INFO_MOBILE_KEY, false));
 		email.setText(MySharedPreferences.getShared(Define.CONFINFO, Define.USER_INFO_EMAIL_KEY, false));
@@ -349,7 +366,6 @@ public class SetinfoActivity extends Activity {
 	    class getPicFromAlbum extends AsyncTask<Intent, String, Bitmap>
 	    {
 
-			@SuppressWarnings("deprecation")
 			@Override
 			protected Bitmap doInBackground(Intent... params) {
 				
@@ -359,7 +375,10 @@ public class SetinfoActivity extends Activity {
 					Uri originalUri = data.getData();
 					
 					String[] proj = { MediaStore.Images.Media.DATA };
-					Cursor cursor = managedQuery(originalUri, proj, null, null, null);
+					
+					ContentResolver mContentResolver = SetinfoActivity.this.getContentResolver();
+					
+					Cursor cursor = mContentResolver.query(originalUri, proj, null, null, null);
 
 					if (cursor != null) {
 						int column_index = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
