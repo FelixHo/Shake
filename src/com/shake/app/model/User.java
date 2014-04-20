@@ -2,7 +2,7 @@ package com.shake.app.model;
 
 import android.widget.ImageView;
 
-public class User {
+public class User { 
 	
 	public String name ="";
 	

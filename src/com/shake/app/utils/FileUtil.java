@@ -2,6 +2,7 @@ package com.shake.app.utils;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -19,6 +20,7 @@ import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.net.Uri;
+import android.util.Base64;
 
 
 public class FileUtil {
@@ -720,5 +722,42 @@ public class FileUtil {
 		String uri = Uri.fromFile(new File(path)).toString();
 		
 		return Uri.decode(uri);
+	}
+	
+	public static String fileToBase64(String filePath)
+	{
+		InputStream inputStream = null;
+		try 
+		{
+			inputStream = new FileInputStream(new File(filePath));
+		} catch (FileNotFoundException e1) {
+			e1.printStackTrace();
+		}//You can get an inputStream using any IO API
+		byte[] bytes;
+		byte[] buffer = new byte[8192];
+		int bytesRead;
+		ByteArrayOutputStream output = new ByteArrayOutputStream();
+		try {
+		    while ((bytesRead = inputStream.read(buffer)) != -1) {
+		    output.write(buffer, 0, bytesRead);
+		}
+		} catch (IOException e) {
+		e.printStackTrace();
+		}
+		finally
+		{
+			if(null!=inputStream)
+			{
+				try 
+				{
+					inputStream.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+		bytes = output.toByteArray();
+		String encodedString = Base64.encodeToString(bytes, Base64.DEFAULT);
+		return encodedString;
 	}
 }

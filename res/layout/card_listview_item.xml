@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" >
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingBottom="10dp" >
+
+        <ImageView
+            android:id="@+id/card_listview_item_avatar"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentTop="true"
+            android:layout_margin="10dp"
+            android:scaleType="fitXY"
+            android:src="@drawable/card_noavatar" />
+
+        <TextView
+            android:id="@+id/card_listview_item_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_toRightOf="@+id/card_listview_item_avatar"
+            android:layout_toLeftOf="@+id/card_listview_item_profile"
+            android:textColor="@android:color/background_dark"
+            android:shadowColor="@android:color/darker_gray"
+            android:singleLine="true"
+            android:ellipsize="end"
+        	android:shadowDx="2"
+       	 	android:shadowDy="2"
+       	 	android:shadowRadius="5"
+            android:text="何俊浩" />
+
+        <TextView
+            android:id="@+id/card_listview_item_profile"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="5dp"
+            android:textColor="@color/dark_gray"
+            android:gravity="right"
+            android:layout_alignParentRight="true"
+            android:singleLine="true"
+            android:ellipsize="marquee"
+            android:textSize="12sp"
+            android:text="华南师范大学  学生" />
+
+    </RelativeLayout>
+
+</FrameLayout>

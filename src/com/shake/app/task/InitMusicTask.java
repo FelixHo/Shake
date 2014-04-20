@@ -19,7 +19,7 @@ import com.shake.app.model.Song;
  */
 public class InitMusicTask extends AsyncTask<Context, String, ArrayList<Song>> {
 
-	private boolean isNewData = false;
+//	private boolean isNewData = false;
 	
 	public interface OnTaskListener
 	{
@@ -110,7 +110,7 @@ public class InitMusicTask extends AsyncTask<Context, String, ArrayList<Song>> {
 		mCursor.close();
 		
 		HomeApp.setSongList(mSongs);
-		isNewData = true;
+//		isNewData = true;
 		
 		return mSongs;
 	}
@@ -126,22 +126,30 @@ public class InitMusicTask extends AsyncTask<Context, String, ArrayList<Song>> {
 	protected void onPostExecute(ArrayList<Song> result) {
 		super.onPostExecute(result);
 		
-		if(isNewData)//这里延迟仅仅为了使画面更顺畅
-		{
-			new Handler().postDelayed(new Runnable() {
-				
-				@Override
-				public void run() {
-					if(listener!=null)
-					listener.onTaskFinished(mSongs);
-				}
-			}, 500);
-		}
-		else
-		{
-			if(listener!=null)
-			listener.onTaskFinished(result);
-		}
+		new Handler().postDelayed(new Runnable() {
+			
+			@Override
+			public void run() {
+				if(listener!=null)
+				listener.onTaskFinished(mSongs);
+			}
+		}, 400);
+//		if(isNewData)//这里延迟仅仅为了使画面更顺畅
+//		{
+//			new Handler().postDelayed(new Runnable() {
+//				
+//				@Override
+//				public void run() {
+//					if(listener!=null)
+//					listener.onTaskFinished(mSongs);
+//				}
+//			}, 500);
+//		}
+//		else
+//		{
+//			if(listener!=null)
+//			listener.onTaskFinished(result);
+//		}
 	}
 	
 	/**

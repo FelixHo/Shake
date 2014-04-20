@@ -39,7 +39,6 @@ import com.shake.app.Define;
 import com.shake.app.HomeApp;
 import com.shake.app.R;
 import com.shake.app.fragment.CardFragment;
-import com.shake.app.utils.FileUtil;
 import com.shake.app.utils.ImageTools;
 import com.shake.app.utils.MyActivityManager;
 import com.shake.app.utils.MySharedPreferences;
@@ -179,6 +178,7 @@ public class SetinfoActivity extends Activity {
 					}
 					else
 					{
+						HomeApp.getMyApplication().markLaunched();//标记应用已经启动过
 						MyActivityManager.jump(SetinfoActivity.this, MainActivity.class);
 						finish();
 					}
@@ -205,7 +205,14 @@ public class SetinfoActivity extends Activity {
 		profile.setText(MySharedPreferences.getShared(Define.CONFINFO, Define.USER_INFO_PROFILE_KEY, false));
 		homeSite.setText(MySharedPreferences.getShared(Define.CONFINFO, Define.USER_INFO_HOMESITE_KEY, false));
 		avatarPath = MySharedPreferences.getShared(Define.CONFINFO, Define.USER_INFO_AVATAR_KEY, false);
-		ImageLoader.getInstance().displayImage(Uri.fromFile(new File(avatarPath)).toString(), avatar);
+		if(avatarPath!=null&&!avatarPath.equals(""))
+		{
+			ImageLoader.getInstance().displayImage(Uri.fromFile(new File(avatarPath)).toString(), avatar);
+		}
+		else
+		{
+			avatar.setImageResource(R.drawable.avatar_selector);
+		}
 	}
 	
 	/**

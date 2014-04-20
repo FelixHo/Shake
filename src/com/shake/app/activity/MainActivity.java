@@ -8,8 +8,11 @@ import com.shake.app.fragment.CardFragment;
 import com.shake.app.fragment.MenuFragment;
 import com.shake.app.libs.slidingmenu.SlidingFragmentActivity;
 import com.shake.app.libs.slidingmenu.SlidingMenu;
+import com.shake.app.utils.LocationTools;
 import com.shake.app.utils.MyActivityManager;
 import com.shake.app.utils.MyToast;
+
+import de.tavendo.autobahn.WebSocketConnection;
 
 public class MainActivity extends SlidingFragmentActivity {
 
@@ -23,6 +26,8 @@ public class MainActivity extends SlidingFragmentActivity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 		MyActivityManager.getInstance().add(this);
+		LocationTools.checkGPSOption(this);
+		LocationTools.toGetLocation(null);
 		if (savedInstanceState != null) 
 		{
 			mContent = getSupportFragmentManager().getFragment(	savedInstanceState, "mContent");
@@ -36,6 +41,7 @@ public class MainActivity extends SlidingFragmentActivity {
 		.replace(R.id.main_content_frame, mContent)
 		.commit();
 		initSlidingMenu();
+		
 	}
 
 	@Override
@@ -65,6 +71,7 @@ public class MainActivity extends SlidingFragmentActivity {
             exitTime = System.currentTimeMillis();   
             MyToast.alert("再按一次退出程序");
         } else {
+        	LocationTools.stop();
             MyActivityManager.getInstance().exit();
         }
 		return;
@@ -109,5 +116,10 @@ public class MainActivity extends SlidingFragmentActivity {
 				getSlidingMenu().showContent();
 			}
 		}, 50);
+	}
+
+	@Override
+	protected void onDestroy() {
+		super.onDestroy();
 	}
 }

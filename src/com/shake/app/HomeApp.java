@@ -17,10 +17,12 @@ import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.nostra13.universalimageloader.core.assist.QueueProcessingType;
 import com.nostra13.universalimageloader.utils.StorageUtils;
+import com.shake.app.model.Card;
 import com.shake.app.model.Contact;
 import com.shake.app.model.Song;
 import com.shake.app.model.User;
 import com.shake.app.utils.FileUtil;
+import com.shake.app.utils.LocationTools;
 
 public class HomeApp extends Application {	
 	
@@ -39,6 +41,8 @@ public class HomeApp extends Application {
 	private static ArrayList<Contact> contactsList = null;//联系人数据表
 	
 	private static ArrayList<Song> songList = null;//歌曲列表
+	
+	private static ArrayList<Card> cardList = null;//名片录
 	
 	/**
 	 * HashMap<文件夹名称、文件夹下所有图片的地址>
@@ -70,6 +74,14 @@ public class HomeApp extends Application {
 
 	public static void setSongList(ArrayList<Song> songList) {
 		HomeApp.songList = songList;
+	}
+
+	public static ArrayList<Card> getCardList() {
+		return cardList;
+	}
+
+	public static void setCardList(ArrayList<Card> cardList) {
+		HomeApp.cardList = cardList;
 	}
 
 	/**
@@ -217,7 +229,7 @@ public class HomeApp extends Application {
 		super.onCreate();
 		ApplicationInstance = this;		
 		initStoragePath();
-		initImageLoader(getApplicationContext());		
+		initImageLoader(getApplicationContext());	
 	}	
 	
 	/**

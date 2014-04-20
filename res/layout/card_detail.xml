@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+	android:background="@drawable/dialog_bg" >
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" >
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingBottom="10dp" >
+
+            <ImageView
+                android:id="@+id/card_detail_avatar"
+                android:layout_width="80dp"
+                android:layout_height="80dp"
+                android:scaleType="fitXY"
+                android:layout_alignParentTop="true"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="10dp"
+                android:src="@drawable/card_noavatar" />
+
+            <LinearLayout
+                android:id="@+id/card_detail_profile_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:paddingStart="20dp"
+                android:layout_margin="10dp"
+                android:gravity="center_vertical"
+                android:layout_below="@+id/card_detail_avatar">
+
+                <ImageView
+                    android:id="@+id/card_detail_profile_icon"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:src="@drawable/profile_144" />
+
+                <TextView
+                    android:id="@+id/card_detail_profile"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingStart="10dp"
+                    android:textSize="15sp"
+                    android:shadowColor="@android:color/white"
+            		android:singleLine="true"
+            		android:ellipsize="end"
+        			android:shadowDx="0"
+       	 			android:shadowDy="2"
+       	 			android:shadowRadius="5"
+                    android:textColor="@android:color/black"
+                    android:text="华南师范大学  学生" />
+
+            </LinearLayout>
+            
+            <LinearLayout
+                android:id="@+id/card_detail_mobile_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:paddingStart="20dp"
+                android:layout_margin="10dp"
+                android:gravity="center_vertical"
+                android:layout_below="@+id/card_detail_profile_layout">
+
+                <ImageView
+                    android:id="@+id/card_detail_mobile_icon"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:src="@drawable/mobile_144" />
+
+                <TextView
+                    android:id="@+id/card_detail_mobile"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingStart="10dp"
+                    android:textSize="15sp"
+                    android:shadowColor="@android:color/white"
+            		android:singleLine="true"
+            		android:ellipsize="end"
+        			android:shadowDx="0"
+       	 			android:shadowDy="2"
+       	 			android:shadowRadius="5"
+                    android:textColor="@android:color/black"
+                    android:text="15989080970" />
+
+            </LinearLayout>
+            
+             <LinearLayout
+                android:id="@+id/card_detail_mail_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:paddingStart="20dp"
+                android:layout_margin="10dp"
+                android:gravity="center_vertical"
+                android:layout_below="@+id/card_detail_mobile_layout">
+
+                <ImageView
+                    android:id="@+id/card_detail_mail_icon"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:src="@drawable/mail_144" />
+
+                <TextView
+                    android:id="@+id/card_detail_mail"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingStart="10dp"
+                    android:textSize="15sp"
+                    android:shadowColor="@android:color/white"
+            		android:singleLine="true"
+            		android:ellipsize="end"
+        			android:shadowDx="0"
+       	 			android:shadowDy="2"
+       	 			android:shadowRadius="5"
+                    android:textColor="@android:color/black"
+                    android:text="hejunhao0830@gmail.com" />
+            </LinearLayout>
+            
+            <LinearLayout
+                android:id="@+id/card_detail_birthday_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:layout_alignParentLeft="true"
+                android:paddingStart="20dp"
+                android:gravity="center_vertical"
+                android:layout_below="@+id/card_detail_mail_layout">
+
+                <ImageView
+                    android:id="@+id/card_detail_birthday_icon"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:src="@drawable/birthday_144" />
+
+                <TextView
+                    android:id="@+id/card_detail_birthday"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingStart="10dp"
+                    android:textSize="15sp"
+                    android:shadowColor="@android:color/white"
+            		android:singleLine="true"
+            		android:ellipsize="end"
+        			android:shadowDx="0"
+       	 			android:shadowDy="2"
+       	 			android:shadowRadius="5"
+                    android:textColor="@android:color/black"
+                    android:text="1991年8月30日" />
+            </LinearLayout>
+            
+            <LinearLayout
+                android:id="@+id/card_detail_home_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:layout_margin="10dp"
+                android:paddingStart="20dp"
+                android:gravity="center_vertical"
+                android:layout_below="@+id/card_detail_birthday_layout">
+
+                <ImageView
+                    android:id="@+id/card_detail_home_icon"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:src="@drawable/home_144" />
+
+                <TextView
+                    android:id="@+id/card_detail_home"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingStart="10dp"
+                    android:textSize="15sp"
+                    android:shadowColor="@android:color/white"
+            		android:singleLine="true"
+            		android:ellipsize="end"
+        			android:shadowDx="0"
+       	 			android:shadowDy="2"
+       	 			android:shadowRadius="5"
+                    android:textColor="@android:color/black"
+                    android:text="http://weibo.com" />
+            </LinearLayout>
+
+        </RelativeLayout>
+    </ScrollView>
+
+</RelativeLayout>

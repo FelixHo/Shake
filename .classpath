@@ -7,5 +7,9 @@
 	<classpathentry kind="con" path="com.android.ide.eclipse.adt.DEPENDENCIES"/>
 	<classpathentry kind="lib" path="D:/Android_SDK/extras/android/support/v4/android-support-v4.jar"/>
 	<classpathentry kind="lib" path="libs/universal-image-loader-1.9.1-with-sources.jar"/>
+	<classpathentry kind="lib" path="libs/locSDK_4.0.jar"/>
+	<classpathentry kind="lib" path="libs/autobahn-android-0.5.2.jar"/>
+	<classpathentry kind="lib" path="libs/jackson-core-asl-1.9.7.jar"/>
+	<classpathentry kind="lib" path="libs/jackson-mapper-asl-1.9.7.jar"/>
 	<classpathentry kind="output" path="bin/classes"/>
 </classpath>

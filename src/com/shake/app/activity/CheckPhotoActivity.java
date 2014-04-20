@@ -2,13 +2,10 @@ package com.shake.app.activity;
 
 import android.app.Activity;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.Bundle;
 
-import com.nostra13.universalimageloader.core.ImageLoader;
 import com.shake.app.Define;
 import com.shake.app.R;
-import com.shake.app.utils.FileUtil;
 import com.shake.app.utils.ImageTools;
 import com.shake.app.view.ZoomAbleImageView;
 

@@ -25,7 +25,7 @@ public class InitImageGroupTask extends AsyncTask<Context, String, HashMap<Strin
 {
 
 
-	private boolean isNewData = false;
+//	private boolean isNewData = false;
 	
 	public interface OnTaskListener
 	{
@@ -121,7 +121,7 @@ public class InitImageGroupTask extends AsyncTask<Context, String, HashMap<Strin
 		mCursor.close();
 		
 		HomeApp.setImageGroupMap(mGroupMap);
-		isNewData = true;
+//		isNewData = true;
 		
 		return mGroupMap;
 	}
@@ -136,23 +136,30 @@ public class InitImageGroupTask extends AsyncTask<Context, String, HashMap<Strin
 	@Override
 	protected void onPostExecute(HashMap<String, List<String>> result) {
 		super.onPostExecute(result);
-		
-		if(isNewData)//这里延迟仅仅为了使画面更顺畅
-		{
-			new Handler().postDelayed(new Runnable() {
-				
-				@Override
-				public void run() {
-					if(listener!=null)
-					listener.onTaskFinished(mGroupMap);
-				}
-			}, 500);
-		}
-		else
-		{
-			if(listener!=null)
-			listener.onTaskFinished(mGroupMap);
-		}
+		new Handler().postDelayed(new Runnable() {
+			
+			@Override
+			public void run() {
+				if(listener!=null)
+				listener.onTaskFinished(mGroupMap);
+			}
+		}, 400);
+//		if(isNewData)//这里延迟仅仅为了使画面更顺畅
+//		{
+//			new Handler().postDelayed(new Runnable() {
+//				
+//				@Override
+//				public void run() {
+//					if(listener!=null)
+//					listener.onTaskFinished(mGroupMap);
+//				}
+//			}, 500);
+//		}
+//		else
+//		{
+//			if(listener!=null)
+//			listener.onTaskFinished(mGroupMap);
+//		}
 		
 	}
 
