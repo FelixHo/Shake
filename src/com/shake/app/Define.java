@@ -53,10 +53,7 @@ public class Define {
 	
 	public static final String MUSIC_PATH = "shake/app/music/";
 	
-	
-//	public static final String SERVER_URL = "tcp://192.168.145.1:5571";
-	
-	public static final String SERVER_URL = "tcp://192.168.1.102:5571";
+	public static final String SERVER_URL = "tcp://192.168.145.1:5571";
 	
 	/**MAC地址**/
 	public static final String MAC_ADDRESS = CommonUtils.getMACIgnoreWIFI(HomeApp.getMyApplication());
