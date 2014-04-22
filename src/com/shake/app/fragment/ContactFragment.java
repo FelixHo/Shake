@@ -507,8 +507,7 @@ public class ContactFragment extends Fragment {
 								                                .build());
 								                        ops.add(ContentProviderOperation.newInsert(ContactsContract.Data.CONTENT_URI)
 								                                .withValueBackReference(ContactsContract.Data.RAW_CONTACT_ID, 0)
-								                                .withValue(ContactsContract.Data.MIMETYPE,
-								                                        ContactsContract.CommonDataKinds.StructuredName.CONTENT_ITEM_TYPE)
+								                                .withValue(ContactsContract.Data.MIMETYPE,ContactsContract.CommonDataKinds.StructuredName.CONTENT_ITEM_TYPE)
 								                                .withValue(ContactsContract.CommonDataKinds.StructuredName.DISPLAY_NAME, data.getString("name"))
 								                                .build());
 								                        
@@ -517,7 +516,8 @@ public class ContactFragment extends Fragment {
 												              for(int i=0;i<jsa.length();i++)
 												              {
 												                        
-												        ops.add(ContentProviderOperation.newInsert(ContactsContract.Data.CONTENT_URI)
+												        ops.add(ContentProviderOperation
+												        		.newInsert(ContactsContract.Data.CONTENT_URI)
 								                                .withValueBackReference(ContactsContract.Data.RAW_CONTACT_ID, 0)
 								                                .withValue(ContactsContract.Data.MIMETYPE,ContactsContract.CommonDataKinds.Phone.CONTENT_ITEM_TYPE)
 								                                .withValue(ContactsContract.CommonDataKinds.Phone.NUMBER, jsa.getString(i))
@@ -528,7 +528,7 @@ public class ContactFragment extends Fragment {
 												            		  .newInsert(ContactsContract.Data.CONTENT_URI)
 												            		    .withValueBackReference(ContactsContract.Data.RAW_CONTACT_ID, 0)
 												            		    .withValue(ContactsContract.Data.MIMETYPE, ContactsContract.CommonDataKinds.Photo.CONTENT_ITEM_TYPE)
-												            		    .withValue(ContactsContract.CommonDataKinds.Photo.CONTENT_ITEM_TYPE,Base64.decode(data.getString("avatar"), Base64.DEFAULT))
+												            		    .withValue(ContactsContract.CommonDataKinds.Photo.PHOTO,Base64.decode(data.getString("avatar"), Base64.DEFAULT))
 												            		    .build());
 												       getActivity().getContentResolver().applyBatch(ContactsContract.AUTHORITY, ops);
 								                		zmq.close();

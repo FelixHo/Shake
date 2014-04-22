@@ -24,6 +24,16 @@ public class Card {
 	public String homelink = "";//主页
 	
 	public String avatar ="";//头像保存路径
+	
+	public int    id;
+	
+	public int getId() {
+		return id;
+	}
+
+	public void setId(int id) {
+		this.id = id;
+	}
 
 	public String getName() {
 		return name;

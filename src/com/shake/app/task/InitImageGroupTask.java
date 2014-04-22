@@ -50,9 +50,9 @@ public class InitImageGroupTask extends AsyncTask<Context, String, HashMap<Strin
 	private static int IMAGE_DATA_INDEX = 0;
 	
 	/**
-	 * 过滤图片不显示低于30kb的图片
+	 * 过滤图片不显示低于20kb的图片
 	 */
-	private static int MINI_IMAGE_SIZE = 30*1024;
+	private static int MINI_IMAGE_SIZE = 20*1024;
 	
 	public void setOnTaskListener(OnTaskListener l)
 	{

@@ -15,6 +15,8 @@ import android.content.DialogInterface;
 import android.content.DialogInterface.OnDismissListener;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.drawable.Drawable;
+import android.nfc.NfcAdapter.CreateBeamUrisCallback;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
@@ -52,6 +54,7 @@ import com.shake.app.utils.MySharedPreferences;
 import com.shake.app.utils.MyToast;
 import com.shake.app.utils.MyVibrator;
 import com.shake.app.utils.ShakeEventDetector;
+import com.shake.app.utils.ViewUtil;
 import com.shake.app.utils.ZMQConnection;
 import com.shake.app.utils.ZMQConnection.ZMQConnectionLisener;
 
@@ -566,44 +569,76 @@ public class CardFragment extends Fragment {
 		listView.setOnItemClickListener(new OnItemClickListener() {
 
 			@Override
-			public void onItemClick(AdapterView<?> arg0, View view, int position,long id) {
+			public void onItemClick(AdapterView<?> arg0, View view, final int position,long id) {
+				ImageView v = (ImageView)view.findViewById(R.id.card_listview_item_avatar);
+				Drawable icon =ImageTools.resizeDrawable(getActivity(), v.getDrawable(),ViewUtil.dp(60),ViewUtil.dp(60));
+				final Card card = (Card) adapter.getItem(position);
+			final AlertDialog alertDialog = new AlertDialog.Builder(getActivity())
+			.setTitle(card.getName())
+			.setIcon(icon)
+			.setPositiveButton("详情",new DialogInterface.OnClickListener() {
 				
-			AlertDialog dialog =new AlertDialog.Builder(getActivity()).create();
-			dialog.show();
-			dialogLayout = LayoutInflater.from(getActivity()).inflate(R.layout.card_detail,null);
-			
-			dialog_profile = (TextView)dialogLayout.findViewById(R.id.card_detail_profile);
-			dialog_mobile = (TextView)dialogLayout.findViewById(R.id.card_detail_mobile);
-			dialog_mail = (TextView)dialogLayout.findViewById(R.id.card_detail_mail);
-			dialog_birthday = (TextView)dialogLayout.findViewById(R.id.card_detail_birthday);
-			dialog_home = (TextView)dialogLayout.findViewById(R.id.card_detail_home);
-			dialog_avatar = (ImageView)dialogLayout.findViewById(R.id.card_detail_avatar);
-			
-			Card card = (Card) adapter.getItem(position);
-			
-			dialog_profile.setText(card.getProfile());
-			dialog_mobile.setText(card.getMobile());
-			dialog_mail.setText(card.getMail());
-			dialog_birthday.setText(card.getBirthday());
-			dialog_home.setText(card.getHomelink());
-			if(card.getAvatar().equals(""))
-			{
-				dialog_avatar.setImageResource(R.drawable.card_noavatar);
-			}
-			else
-			{
-				ImageLoader.getInstance().displayImage(FileUtil.getUriStringByPath(card.getAvatar()), dialog_avatar);
-			}
-			
-			dialog.setContentView(dialogLayout);
-			
-			 WindowManager.LayoutParams lp = dialog.getWindow().getAttributes(); 
-			 lp.width = Define.WIDTH_PX-50;
-			 lp.height= LayoutParams.WRAP_CONTENT;
-			 dialog.getWindow().setAttributes(lp);
-			
-			 dialog.setCanceledOnTouchOutside(true);
-			 
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					
+					AlertDialog detailDialog =new AlertDialog.Builder(getActivity()).create();
+					detailDialog.show();
+					dialogLayout = LayoutInflater.from(getActivity()).inflate(R.layout.card_detail,null);
+					
+					dialog_profile = (TextView)dialogLayout.findViewById(R.id.card_detail_profile);
+					dialog_mobile = (TextView)dialogLayout.findViewById(R.id.card_detail_mobile);
+					dialog_mail = (TextView)dialogLayout.findViewById(R.id.card_detail_mail);
+					dialog_birthday = (TextView)dialogLayout.findViewById(R.id.card_detail_birthday);
+					dialog_home = (TextView)dialogLayout.findViewById(R.id.card_detail_home);
+					dialog_avatar = (ImageView)dialogLayout.findViewById(R.id.card_detail_avatar);
+					
+					
+					
+					dialog_profile.setText(card.getProfile());
+					dialog_mobile.setText(card.getMobile());
+					dialog_mail.setText(card.getMail());
+					dialog_birthday.setText(card.getBirthday());
+					dialog_home.setText(card.getHomelink());
+					if(card.getAvatar().equals(""))
+					{
+						dialog_avatar.setImageResource(R.drawable.card_noavatar);
+					}
+					else
+					{
+						ImageLoader.getInstance().displayImage(FileUtil.getUriStringByPath(card.getAvatar()), dialog_avatar);
+					}
+					
+					detailDialog.setContentView(dialogLayout);
+					
+					 WindowManager.LayoutParams lp = detailDialog.getWindow().getAttributes(); 
+					 lp.width = Define.WIDTH_PX-50;
+					 lp.height= LayoutParams.WRAP_CONTENT;
+					 detailDialog.getWindow().setAttributes(lp);
+					
+					 detailDialog.setCanceledOnTouchOutside(true);
+					
+				}
+			})
+			.setNegativeButton("删除",new DialogInterface.OnClickListener() {
+				
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					CardDBManager db = new CardDBManager(getActivity());
+					if(db.delete(card.getId())==0)
+					{
+						MyToast.alert("删除失败!");
+					}
+					else
+					{
+						MyToast.alert("删除成功!");
+					}
+					initCardList();
+				}
+			})
+			.create();
+			alertDialog.show();
+			alertDialog.setCancelable(true);
+			alertDialog.setCanceledOnTouchOutside(true);
 			}
 		});
 	}

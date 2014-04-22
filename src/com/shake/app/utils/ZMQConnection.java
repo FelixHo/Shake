@@ -167,14 +167,13 @@ public class ZMQConnection {
 //				mConnection.ctx.destroySocket(mConnection.mSocket);
 //				return null;
 //			}
-	        
 			PollItem[] items = new PollItem[] { new PollItem(mConnection.mSocket, Poller.POLLIN) };
 			lastActTime = System.currentTimeMillis();
 			while(doTask)
 			{
 //				Log.d("ZMQTask","isSending:"+isSending);
 //				Log.d("ZMQTask","timeDis:"+(System.currentTimeMillis()-lastActTime));
-				if((isSending||!hasReturn)&&System.currentTimeMillis()-lastActTime>60000)
+				if((isSending||!hasReturn)&&System.currentTimeMillis()-lastActTime>10000)
 				{
 					ZMsg resvMsg = null;
 					publishProgress(resvMsg);
@@ -184,11 +183,12 @@ public class ZMQConnection {
 				if(rc!=0)
 				Log.d("ZMQTask-rc",rc+"");
 //				Log.d("ZMQTask999", "runing...");
+				
 				if (items[0].isReadable()) 
 				{				
 					hasReturn =true;
-					ZMsg resvMsg = ZMsg.recvMsg(mConnection.mSocket,ZMQ.DONTWAIT);
-//					ZMsg resvMsg = ZMsg.recvMsg(mConnection.mSocket);
+//					ZMsg resvMsg = ZMsg.recvMsg(mConnection.mSocket,ZMQ.DONTWAIT);
+					ZMsg resvMsg = ZMsg.recvMsg(mConnection.mSocket);
 					Log.d("ZMQTask", "receive");
 					publishProgress(resvMsg);
 					
@@ -240,6 +240,7 @@ public class ZMQConnection {
 
 		@Override
 		protected Void doInBackground(final String... params) {
+			mConnection.mSocket.setSendTimeOut(10000);
 			Log.d("ZMQTask",mConnection.ctx.getSockets().size()+"个socket");
 			lastActTime = System.currentTimeMillis();
 			isSending = true;
@@ -249,12 +250,12 @@ public class ZMQConnection {
 			{
 				if(mConnection.mSocket.send(params[0]))
 					{
-						Log.d("ZMQTask","send success!!!");
+						Log.d("ZMQTask","send success!!!....");
 						isSending = false;
 					}
 				else
 				{
-						Log.d("ZMQTask","send failed~~~~~");
+						Log.d("ZMQTask","send failed~~may be time out~~~");
 					isSending = false;
 				}
 				if(params[1].equals("1"))

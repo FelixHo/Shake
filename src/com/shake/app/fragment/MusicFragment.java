@@ -1,21 +1,27 @@
 package com.shake.app.fragment;
 
 import java.io.IOException;
-import java.text.DateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.zeromq.ZMsg;
 import org.zeromq.ZMQ.Socket;
+import org.zeromq.ZMsg;
 
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnDismissListener;
+import android.content.Intent;
 import android.media.MediaPlayer;
+import android.media.MediaScannerConnection;
+import android.media.MediaScannerConnection.OnScanCompletedListener;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
+import android.provider.MediaStore;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -36,16 +42,15 @@ import com.shake.app.model.Song;
 import com.shake.app.task.InitMusicTask;
 import com.shake.app.task.InitMusicTask.OnTaskListener;
 import com.shake.app.utils.FileUtil;
-import com.shake.app.utils.ImageTools;
 import com.shake.app.utils.LocationTools;
+import com.shake.app.utils.LocationTools.MyLocationListener;
 import com.shake.app.utils.MyJsonCreator;
 import com.shake.app.utils.MySharedPreferences;
 import com.shake.app.utils.MyToast;
 import com.shake.app.utils.MyVibrator;
 import com.shake.app.utils.ShakeEventDetector;
-import com.shake.app.utils.ZMQConnection;
-import com.shake.app.utils.LocationTools.MyLocationListener;
 import com.shake.app.utils.ShakeEventDetector.OnShakeListener;
+import com.shake.app.utils.ZMQConnection;
 import com.shake.app.utils.ZMQConnection.ZMQConnectionLisener;
 
 /**
@@ -54,6 +59,7 @@ import com.shake.app.utils.ZMQConnection.ZMQConnectionLisener;
  */
 public class MusicFragment extends Fragment {
 	
+
 	private View layout;
 	
 	private InitMusicTask task;
@@ -72,9 +78,24 @@ public class MusicFragment extends Fragment {
 	
 	private Button connBtn;
 	
+	private Handler refreshHandelr;
+	
 	public MusicFragment() {
 		
 	}
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		refreshHandelr = new Handler()
+		{
+			public void handleMessage(Message msg)
+			{
+				HomeApp.setSongList(null);
+				getMusic();
+			}
+		};
+	}
+
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,Bundle savedInstanceState) {
@@ -213,6 +234,10 @@ public class MusicFragment extends Fragment {
 						@Override
 						public void onClick(View v) {
 							/*****************************************************/
+							if(dialog.isShowing())
+							{
+								dialog.dismiss();
+							}
 							
 							final ProgressDialog progressDialog = new ProgressDialog(getActivity());
 							progressDialog.setCancelable(false);
@@ -462,20 +487,41 @@ public class MusicFragment extends Fragment {
 								                	{
 								                		
 								                		JSONObject data = new JSONObject(jso.getString("data"));
-								                		
 								                		String name = data.getString("name");
 								                		String base64 =data.getString("data");
-								                		FileUtil.decoderBase64File(base64, HomeApp.getMyApplication().getMusicPath()+name);
+								                		String path = HomeApp.getMyApplication().getMusicPath()+name;
+								                		
+								                		FileUtil.decoderBase64File(base64, path);
+								                		getActivity().getApplicationContext().sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.parse("file://"+path)));  
+								                		 Log.d("ZMQTask","音乐路径:"+"file://"+path);
+								                		ContentValues values = new ContentValues();  
+								                		 values.put(MediaStore.MediaColumns.DATA, path);  
+								                		 values.put(MediaStore.MediaColumns.TITLE, "exampletitle");  
+								                		 values.put(MediaStore.MediaColumns.MIME_TYPE, "audio/*");  
+								                		 values.put(MediaStore.Audio.Media.ARTIST, "cssounds ");  
+								                		 values.put(MediaStore.Audio.Media.IS_RINGTONE, true);  
+								                		 values.put(MediaStore.Audio.Media.IS_NOTIFICATION, true);  
+								                		 values.put(MediaStore.Audio.Media.IS_ALARM, true);  
+								                		 values.put(MediaStore.Audio.Media.IS_MUSIC, true); 
+								                		 getActivity().getContentResolver().insert(MediaStore.Audio.Media.getContentUriForPath(path), values);
+								                		 MyVibrator.doVibration(500);
+								                		 progressDialog.setMessage("接收完成,正在更新音乐库...");
+								                		 MediaScannerConnection.scanFile(getActivity(), new String[]{path}, null, new OnScanCompletedListener() {
+															
+															@Override
+															public void onScanCompleted(String path, Uri uri) {
+																
+																if(progressDialog.isShowing())
+										                		{
+										                			progressDialog.dismiss();
+										                		}
+																refreshHandelr.sendEmptyMessage(0);
+																
+															}
+														});
+								                		 zmq.close();
 								                		
 								                		
-								                		zmq.close();
-								                		if(progressDialog.isShowing())
-								                		{
-								                			progressDialog.dismiss();
-								                		}
-								                		MyVibrator.doVibration(500);
-								                		MyToast.alert("接收完成");
-								                		HomeApp.setSongList(null);
 								                		getMusic();
 								                		break;
 								                		

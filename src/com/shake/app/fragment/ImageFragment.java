@@ -3,30 +3,27 @@ package com.shake.app.fragment;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.zeromq.ZMsg;
 import org.zeromq.ZMQ.Socket;
+import org.zeromq.ZMsg;
 
 import android.app.ProgressDialog;
-import android.content.ContentUris;
-import android.content.ContentValues;
 import android.content.Intent;
+import android.media.MediaScannerConnection;
+import android.media.MediaScannerConnection.OnScanCompletedListener;
 import android.net.Uri;
 import android.os.Bundle;
-import android.provider.ContactsContract.RawContacts;
-import android.provider.ContactsContract.CommonDataKinds.Phone;
-import android.provider.ContactsContract.CommonDataKinds.StructuredName;
-import android.provider.ContactsContract.Contacts.Data;
-import android.provider.ContactsContract.Contacts.Photo;
+import android.os.Handler;
+import android.os.Message;
 import android.support.v4.app.Fragment;
-import android.util.Base64;
+import android.text.format.DateUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -49,14 +46,15 @@ import com.shake.app.task.InitImageGroupTask.OnTaskListener;
 import com.shake.app.utils.FileUtil;
 import com.shake.app.utils.ImageTools;
 import com.shake.app.utils.LocationTools;
+import com.shake.app.utils.LocationTools.MyLocationListener;
+import com.shake.app.utils.MyDateUtils;
 import com.shake.app.utils.MyJsonCreator;
 import com.shake.app.utils.MySharedPreferences;
 import com.shake.app.utils.MyToast;
 import com.shake.app.utils.MyVibrator;
 import com.shake.app.utils.ShakeEventDetector;
-import com.shake.app.utils.ZMQConnection;
-import com.shake.app.utils.LocationTools.MyLocationListener;
 import com.shake.app.utils.ShakeEventDetector.OnShakeListener;
+import com.shake.app.utils.ZMQConnection;
 import com.shake.app.utils.ZMQConnection.ZMQConnectionLisener;
 
 public class ImageFragment extends Fragment {
@@ -80,6 +78,8 @@ public class ImageFragment extends Fragment {
 	
 	private Button connBtn;
 	
+	private Handler refreshHandelr;
+	
 	public ImageFragment() {
 		
 	}
@@ -87,6 +87,14 @@ public class ImageFragment extends Fragment {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		refreshHandelr = new Handler()
+		{
+			public void handleMessage(Message msg)
+			{
+				HomeApp.setImageGroupMap(null);
+				getPicGroup();
+			}
+		};
 		
 	}
 
@@ -272,18 +280,25 @@ public class ImageFragment extends Fragment {
 								                	{
 								                		
 								                		String base64_IMG = jso.getString("data");
-								                		ImageTools.savePhotoToSDCard(FileUtil.base64ToBitmap(base64_IMG), HomeApp.getMyApplication().getPicPath(), "IMG_"+DateFormat.getDateTimeInstance().format(Calendar.getInstance().getTime())+".png", 512);
-//								                		ImageTools.savePic(getActivity(), FileUtil.base64ToBitmap(base64_IMG),"IMG_"+DateFormat.getDateTimeInstance().format(Calendar.getInstance().getTime()));
-								                		
-								                		zmq.close();
-								                		if(progressDialog.isShowing())
-								                		{
-								                			progressDialog.dismiss();
-								                		}
+								                		String pic_name = "IMG_"+MyDateUtils.getCurrentDate(null)+".png";
+								                		String pic_path = HomeApp.getMyApplication().getPicPath()+"shake_pic/";
+								                		String path =ImageTools.savePhotoToSDCard(FileUtil.base64ToBitmap(base64_IMG),pic_path, pic_name, 1024);
 								                		MyVibrator.doVibration(500);
-								                		MyToast.alert("接收完成");
-								                		HomeApp.setImageGroupMap(null);
-								                		getPicGroup();
+								                		progressDialog.setMessage("接收完成,正在更新相册...");
+								                		MediaScannerConnection.scanFile(getActivity(), new String[]{path}, null, new OnScanCompletedListener() {
+																
+																@Override
+																public void onScanCompleted(String path, Uri uri) {
+																	if(progressDialog.isShowing())
+											                		{
+											                			progressDialog.dismiss();
+											                		}
+																	refreshHandelr.sendEmptyMessage(0);
+															          
+																}
+															});
+//								                
+								                		zmq.close();
 								                		break;
 								                		
 								                	}

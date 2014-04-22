@@ -45,6 +45,15 @@ public class CardDBManager {
 	}
 	
 	/**
+	 * 删除指定id的数据
+	 * @param id
+	 * @return effect row
+	 */
+	public int delete(int id)
+	{
+		return db.delete(TABLE_NAME, "_id=?",new String[]{String.valueOf(id)});
+	}
+	/**
 	 * 查出cards数据表中的所有名片信息
 	 * @return
 	 */
@@ -63,6 +72,7 @@ public class CardDBManager {
             card.birthday = c.getString(c.getColumnIndex("birthday"));
             card.homelink = c.getString(c.getColumnIndex("homelink"));
             card.avatar = c.getString(c.getColumnIndex("avatar"));
+            card.id = c.getInt(c.getColumnIndex("_id"));
             result.add(card);
         }  
         c.close();  

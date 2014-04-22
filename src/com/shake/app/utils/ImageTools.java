@@ -53,15 +53,17 @@ public final class ImageTools {
 		 * @author 俊浩
 		 * 
 		 */
-		public static void savePic(final Context context,Bitmap bmp,String name)
+		public static String savePic(final Context context,Bitmap bmp,String name)
 		{
+			String path="";
 			if(HomeApp.getMyApplication().isSDCardMounted())
 			{
 				if(bmp!=null)
 				{				
 					final String uri=MediaStore.Images.Media.insertImage(context.getContentResolver(), bmp,name,"Shake");
-							
-					Log.i("图片保存路径", uri);
+//					path = FileUtil.getRealPathFromURI(context, Uri.parse(uri));
+					path = uri;
+					Log.i("图片保存路径", path);
 					if(uri!=null)
 					{
 						new Handler().post(new Runnable() {
@@ -86,6 +88,7 @@ public final class ImageTools {
 			{
 				Toast.makeText(context, "请插入存储卡!", Toast.LENGTH_SHORT).show();
 			}		
+			return path;
 		}
 		private  String getFilePathByContentResolver(Context context, Uri uri) {  
 	        if (null == uri) {  
