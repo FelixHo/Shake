@@ -87,6 +87,27 @@ public final class ImageTools {
 				Toast.makeText(context, "请插入存储卡!", Toast.LENGTH_SHORT).show();
 			}		
 		}
+		private  String getFilePathByContentResolver(Context context, Uri uri) {  
+	        if (null == uri) {  
+	            return null;  
+	        }  
+	        Cursor c = context.getContentResolver().query(uri, null, null, null, null);  
+	        String filePath  = null;  
+	        if (null == c) {  
+	            throw new IllegalArgumentException(  
+	                    "Query on " + uri + " returns null result.");  
+	        }  
+	        try {  
+	            if ((c.getCount() != 1) || !c.moveToFirst()) {  
+	            } else {  
+	                filePath = c.getString(  
+	                        c.getColumnIndexOrThrow(MediaColumns.DATA));  
+	            }  
+	        } finally {  
+	            c.close();  
+	        }  
+	        return filePath;  
+	    }  
 		/**
 		 * 压缩bitmap到指定字节流大小
 		 * @param image 原图

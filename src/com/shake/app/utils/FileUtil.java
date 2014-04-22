@@ -19,6 +19,8 @@ import java.util.List;
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.util.Base64;
 
@@ -724,6 +726,11 @@ public class FileUtil {
 		return Uri.decode(uri);
 	}
 	
+	/**
+	 * 文件转base64
+	 * @param filePath
+	 * @return
+	 */
 	public static String fileToBase64(String filePath)
 	{
 		InputStream inputStream = null;
@@ -732,7 +739,7 @@ public class FileUtil {
 			inputStream = new FileInputStream(new File(filePath));
 		} catch (FileNotFoundException e1) {
 			e1.printStackTrace();
-		}//You can get an inputStream using any IO API
+		}
 		byte[] bytes;
 		byte[] buffer = new byte[8192];
 		int bytesRead;
@@ -760,4 +767,41 @@ public class FileUtil {
 		String encodedString = Base64.encodeToString(bytes, Base64.DEFAULT);
 		return encodedString;
 	}
+	
+	/**
+	 * base64转图片(前提是base64数据源必须由图片转换所得)
+	 * @param data
+	 * @return
+	 */
+	public static Bitmap base64ToBitmap(String data)
+	{
+		byte[] dataByte = Base64.decode(data, Base64.DEFAULT);
+		Bitmap bitmap = BitmapFactory.decodeByteArray(dataByte, 0, dataByte.length); 
+		return bitmap;
+	}
+	
+	/**
+	 * bitmap 转base64
+	 * @param bitmap
+	 * @return
+	 */
+	public static String bitmapToBase64(Bitmap bitmap)
+	{
+		ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();  
+		bitmap.compress(Bitmap.CompressFormat.PNG, 100, byteArrayOutputStream);
+		byte[] byteArray = byteArrayOutputStream .toByteArray();
+		String encoded = Base64.encodeToString(byteArray, Base64.DEFAULT);
+		return encoded;
+	}
+	
+	/**
+	 * base64 转 文件
+	 */
+	public static void decoderBase64File(String base64Code,String savePath) throws Exception {
+		//byte[] buffer = new BASE64Decoder().decodeBuffer(base64Code);
+		byte[] buffer =Base64.decode(base64Code, Base64.DEFAULT);
+		FileOutputStream out = new FileOutputStream(savePath);
+		out.write(buffer);
+		out.close();
+		}
 }

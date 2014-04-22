@@ -36,7 +36,7 @@ public class MenuFragment extends Fragment {
 	
 	private ListView listView;
 	
-	private String[] menus = {"名片录","联系人","我的图库","我的音乐","微博"};
+	private String[] menus = {"名片录","联系人","我的图库","我的音乐"};
 	
 	private MenuAdapter adapter;
 	

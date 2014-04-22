@@ -69,7 +69,7 @@ public class LocationTools {
 	{
 		LocationClientOption option = new LocationClientOption();
 		option.setOpenGps(true);
-		option.setCoorType("bd09ll");//返回的定位结果是百度经纬度，默认值gcj02
+		option.setCoorType("gcj02");//返回的定位结果是百度经纬度，默认值gcj02
 		option.setServiceName("com.baidu.location.service_v2.9");
 		option.setProdName("Shake");
 		option.setScanSpan(900);

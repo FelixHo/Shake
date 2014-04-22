@@ -36,7 +36,7 @@ public class InitMusicTask extends AsyncTask<Context, String, ArrayList<Song>> {
 	
 	private ArrayList<Song> mSongs = new ArrayList<Song>();
 	
-	private final static String[] PROJECTION = {Media.ARTIST,Media.TITLE,Media.DURATION,Media.DATA,Media.SIZE};
+	private final static String[] PROJECTION = {Media.ARTIST,Media.DISPLAY_NAME,Media.DURATION,Media.DATA,Media.SIZE};
 	
 	private final static int SONG_ARTIST_INDEX = 0;
 	

@@ -27,6 +27,13 @@
             android:background="@drawable/menu_button_selector"
             android:layout_alignParentLeft="true"
             android:layout_centerVertical="true"/>
+        <Button
+            android:id="@+id/music_frag_connect_button"
+            android:layout_width="55dp"
+            android:layout_height="match_parent"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:background="@drawable/connect_button_selector" />
     </RelativeLayout>
 
     <ListView

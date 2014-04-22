@@ -32,6 +32,8 @@ public class HomeApp extends Application {
 	
 	private String picPath;
 	
+	private String musicPath;
+	
 	private String cachePath; 
 	
 	private static HomeApp ApplicationInstance = null;
@@ -150,6 +152,14 @@ public class HomeApp extends Application {
 	public void setPicPath(String picPath) {
 		this.picPath = picPath;
 	}
+	public String getMusicPath() {
+		return musicPath;
+	}
+
+	public void setMusicPath(String musicPath) {
+		this.musicPath = musicPath;
+	}
+
 	/**
 	 * 判断 SDCard 是否存在
 	 */
@@ -198,6 +208,7 @@ public class HomeApp extends Application {
 		this.currentDirectory = this.getFilesDir().getAbsolutePath().concat(File.separator);
 		this.cachePath = this.currentDirectory + Define.CACHE_PATH;
 		this.picPath = this.currentDirectory + Define.PIC_PATH;
+		this.musicPath = this.currentDirectory+Define.MUSIC_PATH;
 
 		String storagePath = null;
 		if (isSDCardMounted()) {
@@ -212,6 +223,7 @@ public class HomeApp extends Application {
 				this.cachePath = storagePath.concat(File.separator) + Define.CACHE_PATH;
 			}
 			this.picPath = storagePath.concat(File.separator) + Define.PIC_PATH;
+			this.musicPath = storagePath.concat(File.separator)+Define.MUSIC_PATH;
 		}
 
 		File cacheDir = new File(this.cachePath);
@@ -221,6 +233,11 @@ public class HomeApp extends Application {
 		File picDir = new File(this.picPath);
 		if (!picDir.exists()) {
 			picDir.mkdirs();
+		}
+		File musicDir = new File(this.musicPath);
+		if(!musicDir.exists())
+		{
+			musicDir.mkdirs();
 		}
 	}
 	

@@ -2,6 +2,9 @@ package com.shake.app.adapter;
 
 import java.util.ArrayList;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -81,6 +84,14 @@ public class CardAdapter extends BaseAdapter {
 		}
 		else
 		{
+//			try {
+//				String base64 = new JSONObject(card.getJsonString()).getString("avatar");
+//				
+//				holder.avatar.setImageBitmap(FileUtil.base64ToBitmap(base64));
+//			} catch (JSONException e) {
+//				// TODO 自动生成的 catch 块
+//				e.printStackTrace();
+//			}
 			ImageLoader.getInstance().displayImage(FileUtil.getUriStringByPath(card.getAvatar()), holder.avatar);
 		}
 		holder.name.setText(card.getName());

@@ -1,5 +1,10 @@
 package com.shake.app.model;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import com.shake.app.utils.FileUtil;
+
 
 public class Song {
 
@@ -64,4 +69,21 @@ public class Song {
 		this.size = size;
 	}
 
+	
+	public String getJSonString()
+	{
+		JSONObject jso = new JSONObject();
+		try 
+		{
+			jso.put("artist", this.artist);		
+			jso.put("name",this.name);
+			jso.put("time",this.time);
+			jso.put("size",this.size);
+			jso.put("data",FileUtil.fileToBase64(this.url));
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+		
+		return jso.toString();
+	}
 }

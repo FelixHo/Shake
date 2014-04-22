@@ -1,5 +1,10 @@
 package com.shake.app.model;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import com.shake.app.utils.FileUtil;
+
 /**
  * 名片bean
  * @author Felix
@@ -74,5 +79,33 @@ public class Card {
 
 	public void setAvatar(String avatar) {
 		this.avatar = avatar;
+	}
+	
+	public String getJsonString()
+	{
+		JSONObject jso = new JSONObject();
+		
+		try 
+		{
+			jso.put("name", this.name);
+			jso.put("profile", this.profile);
+			jso.put("mobile",this.mobile);
+			jso.put("mail", this.mail);
+			jso.put("birthday", this.birthday);
+			jso.put("homelink", this.homelink);
+		
+		if(this.avatar.equals(""))
+		{
+			jso.put("avatar","");
+		}
+		else
+		{
+			String data = FileUtil.fileToBase64(this.avatar);
+			jso.put("avatar",data);
+		}
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+		return jso.toString();
 	}
 }

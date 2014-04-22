@@ -83,4 +83,6 @@ public class User {
 	public void setHomesite(String homesite) {
 		this.homesite = homesite;
 	}
+	
+	
 }

@@ -42,9 +42,9 @@ public class InitCardsTask extends AsyncTask<Context, Void, ArrayList<Card>> {
 		
 		cardDB = new CardDBManager(mContext);
 		
-		cardDB.clearAll();//仅配合测试数据使用
+//		cardDB.clearAll();//仅配合测试数据使用
 		
-		initTestData();
+//		initTestData();
 		
 		mCards = cardDB.queryAll();
 		

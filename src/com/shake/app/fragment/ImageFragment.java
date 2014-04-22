@@ -1,24 +1,43 @@
 package com.shake.app.fragment;
 
+import java.text.DateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.zeromq.ZMsg;
+import org.zeromq.ZMQ.Socket;
+
 import android.app.ProgressDialog;
+import android.content.ContentUris;
+import android.content.ContentValues;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.ContactsContract.RawContacts;
+import android.provider.ContactsContract.CommonDataKinds.Phone;
+import android.provider.ContactsContract.CommonDataKinds.StructuredName;
+import android.provider.ContactsContract.Contacts.Data;
+import android.provider.ContactsContract.Contacts.Photo;
 import android.support.v4.app.Fragment;
+import android.util.Base64;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.View.OnClickListener;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Button;
 import android.widget.GridView;
 
+import com.shake.app.Define;
 import com.shake.app.HomeApp;
 import com.shake.app.R;
 import com.shake.app.activity.MainActivity;
@@ -27,7 +46,18 @@ import com.shake.app.adapter.GroupAdapter;
 import com.shake.app.model.ImageBean;
 import com.shake.app.task.InitImageGroupTask;
 import com.shake.app.task.InitImageGroupTask.OnTaskListener;
+import com.shake.app.utils.FileUtil;
+import com.shake.app.utils.ImageTools;
+import com.shake.app.utils.LocationTools;
+import com.shake.app.utils.MyJsonCreator;
+import com.shake.app.utils.MySharedPreferences;
 import com.shake.app.utils.MyToast;
+import com.shake.app.utils.MyVibrator;
+import com.shake.app.utils.ShakeEventDetector;
+import com.shake.app.utils.ZMQConnection;
+import com.shake.app.utils.LocationTools.MyLocationListener;
+import com.shake.app.utils.ShakeEventDetector.OnShakeListener;
+import com.shake.app.utils.ZMQConnection.ZMQConnectionLisener;
 
 public class ImageFragment extends Fragment {
 	
@@ -47,6 +77,8 @@ public class ImageFragment extends Fragment {
 	private GroupAdapter adapter;
 	
 	private Button menuBtn;
+	
+	private Button connBtn;
 	
 	public ImageFragment() {
 		
@@ -72,7 +104,12 @@ public class ImageFragment extends Fragment {
 		
 		setupView();
 		initView();
+		getPicGroup();
 		
+	}
+
+	private void getPicGroup()
+	{
 		task = new InitImageGroupTask();
 		
 		task.setOnTaskListener(new OnTaskListener() {
@@ -110,11 +147,12 @@ public class ImageFragment extends Fragment {
 		});
 		task.execute(getActivity());
 	}
-
+	
 	private void setupView()
 	{
 		groupGrid = (GridView)layout.findViewById(R.id.image_frag_gridview);
 		menuBtn = (Button)layout.findViewById(R.id.image_frag_menu_button);
+		connBtn = (Button)layout.findViewById(R.id.image_frag_connect_button);
 	}
 	
 	private void initView()
@@ -140,6 +178,147 @@ public class ImageFragment extends Fragment {
 			public void onClick(View v) {
 				
 				((MainActivity)getActivity()).toggleMenu();
+			}
+		});
+		
+		connBtn.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				/********************************************************************/
+				final ProgressDialog progressDialog = new ProgressDialog(getActivity());
+				progressDialog.setCancelable(false);
+				
+				MyToast.alert("请与要获取信息的手机进行一次轻碰");
+				ShakeEventDetector.start(new OnShakeListener() {
+					
+					@Override
+					public void onShake() {
+						
+						progressDialog.setMessage("正在定位...");
+						if(!progressDialog.isShowing())
+						{
+							progressDialog.show();
+						}
+						else
+						{
+							return;
+						}
+						LocationTools.toGetLocation(new MyLocationListener() {
+							
+							@Override
+							public void onReceive(String[] location) {
+								
+								progressDialog.setMessage("正在匹配...");
+								MyVibrator.doVibration(300);
+								JSONObject jso = new JSONObject();
+								try 
+								{
+									jso.put("name",MySharedPreferences.getShared(Define.CONFINFO, Define.USER_INFO_NAME_KEY, false));
+									jso.put("lat", location[0]);//纬度
+									jso.put("lon",location[1]);//经度
+									String data = jso.toString();
+									
+									String connectREQ = MyJsonCreator.createJsonToServer("3","2",data,null);						
+								
+									Log.d("发出的JSON:", connectREQ);								
+								
+								ShakeEventDetector.stop();
+								final ZMQConnection zmq = ZMQConnection.getInstance(Define.SERVER_URL, Define.MAC_ADDRESS);
+								zmq.setConnectionListener(new ZMQConnectionLisener() {
+									
+									@Override
+									public void onMessage(ZMQConnection mConnection, Socket socket, ZMsg resvMsg) {
+										try{
+												MyVibrator.doVibration(500);
+								                String result = new String(resvMsg.getLast().getData());
+								                Log.d("ZMQTask","onMEssage:     "+result);
+								                resvMsg.destroy();
+								                JSONObject jso = new JSONObject(result);
+								                
+								                int state = jso.getInt("state");
+								                
+								                switch(state)
+								                {
+								                	case 200://匹配成功
+								                	{
+								                		MyVibrator.doVibration(500);
+								                		progressDialog.setMessage("匹配成功,正在接收...");
+								                		break;
+								                	}
+								                	case 404://匹配失败
+								                	{
+								                		if(progressDialog.isShowing())
+								                		{
+								                			progressDialog.dismiss();
+								                		}
+								                		MyVibrator.doVibration(500);
+								                		MyToast.alert("匹配失败:(");
+								                		zmq.close();
+								                		break;
+								                	}
+								                	case 999://连接取消
+								                	{
+								                		if(progressDialog.isShowing())
+								                		{
+								                			progressDialog.dismiss();
+								                		}
+								                		MyVibrator.doVibration(500);
+								                		MyToast.alert("本次连接已被取消.");
+								                		zmq.close();
+								                		break;
+								                	}
+								                	case 300://接收成功
+								                	{
+								                		
+								                		String base64_IMG = jso.getString("data");
+								                		ImageTools.savePhotoToSDCard(FileUtil.base64ToBitmap(base64_IMG), HomeApp.getMyApplication().getPicPath(), "IMG_"+DateFormat.getDateTimeInstance().format(Calendar.getInstance().getTime())+".png", 512);
+//								                		ImageTools.savePic(getActivity(), FileUtil.base64ToBitmap(base64_IMG),"IMG_"+DateFormat.getDateTimeInstance().format(Calendar.getInstance().getTime()));
+								                		
+								                		zmq.close();
+								                		if(progressDialog.isShowing())
+								                		{
+								                			progressDialog.dismiss();
+								                		}
+								                		MyVibrator.doVibration(500);
+								                		MyToast.alert("接收完成");
+								                		HomeApp.setImageGroupMap(null);
+								                		getPicGroup();
+								                		break;
+								                		
+								                	}
+								                }
+											}
+							                catch( JSONException e)
+							                {
+							                	e.printStackTrace();
+							                }
+									}
+
+									@Override
+									public void onSendTimeOut(ZMQConnection mConnection) {
+										
+										if(progressDialog.isShowing())
+										{
+											progressDialog.dismiss();
+										}
+										mConnection.close();
+										MyToast.alert("请求超时.");
+									}
+								});
+								
+								zmq.open();
+								zmq.send(connectREQ,false);	
+								
+								} catch (JSONException e) {
+									e.printStackTrace();
+								}
+							}
+						});
+					}
+				});
+				/********************************************************************/
+				
 			}
 		});
 	}
