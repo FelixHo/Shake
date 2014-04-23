@@ -1,6 +1,8 @@
 package com.shake.app.fragment;
 
 import java.util.ArrayList;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -19,6 +21,7 @@ import android.graphics.drawable.Drawable;
 import android.nfc.NfcAdapter.CreateBeamUrisCallback;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Message;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -227,7 +230,7 @@ public class CardFragment extends Fragment {
 					
 					@Override
 					public void onShake() {
-						progressDialog.setMessage("正在定位...");
+						progressDialog.setMessage("正在建立连接...");
 						if(!progressDialog.isShowing())
 						{
 							progressDialog.show();
@@ -337,7 +340,7 @@ public class CardFragment extends Fragment {
 								                		}
 								                		MyVibrator.doVibration(500);
 								                		MyToast.alert("匹配失败:(");
-								                		zmq.close();
+								                		zmq.closeSocket();
 								                		break;
 								                	}
 								                	case 301://发送成功
@@ -364,7 +367,7 @@ public class CardFragment extends Fragment {
 										{
 											progressDialog.dismiss();
 										}
-										mConnection.close();
+										mConnection.closeSocket();
 										MyToast.alert("请求超时.");
 									}
 									
@@ -388,6 +391,27 @@ public class CardFragment extends Fragment {
 			public void onClick(View v) {
 				final ProgressDialog progressDialog = new ProgressDialog(getActivity());
 				progressDialog.setCancelable(false);
+//				final Handler updateTimeHandler = new Handler()
+//				{  
+//					int second = 0;
+//			       public void handleMessage(Message msg) 
+//			       {  
+//			    	   
+//			    	   progressDialog.setTitle("连接时长"+second+"秒");
+//			    	   second++;
+//			        }    
+//				};  
+//				TimerTask timetask = new TimerTask() {
+//					
+//					@Override
+//					public void run() {
+//						
+//						updateTimeHandler.sendEmptyMessage(0);
+//					}
+//				};
+//				Timer timer =new Timer();
+//				timer.schedule(timetask, 0, 1000);
+				
 				
 				MyToast.alert("请与要获取信息的手机进行一次轻碰");
 				ShakeEventDetector.start(new OnShakeListener() {
@@ -395,7 +419,7 @@ public class CardFragment extends Fragment {
 					@Override
 					public void onShake() {
 						
-						progressDialog.setMessage("正在定位...");
+						progressDialog.setMessage("正在建立连接...");
 						if(!progressDialog.isShowing())
 						{
 							progressDialog.show();
@@ -445,6 +469,8 @@ public class CardFragment extends Fragment {
 								                	{
 								                		MyVibrator.doVibration(500);
 								                		progressDialog.setMessage("匹配成功,正在接收...");
+								                		ZMQConnection.hasReturn = false;
+								                		ZMQConnection.lastActTime = System.currentTimeMillis();
 								                		break;
 								                	}
 								                	case 404://匹配失败
@@ -455,7 +481,7 @@ public class CardFragment extends Fragment {
 								                		}
 								                		MyVibrator.doVibration(500);
 								                		MyToast.alert("匹配失败:(");
-								                		zmq.close();
+								                		zmq.closeSocket();
 								                		break;
 								                	}
 								                	case 999://连接取消
@@ -466,7 +492,7 @@ public class CardFragment extends Fragment {
 								                		}
 								                		MyVibrator.doVibration(500);
 								                		MyToast.alert("本次连接已被取消.");
-								                		zmq.close();
+								                		zmq.closeSocket();
 								                		break;
 								                	}
 								                	case 300://接收成功
@@ -494,7 +520,7 @@ public class CardFragment extends Fragment {
 								                		CardDBManager dbM = new CardDBManager(getActivity());
 								                		dbM.add(card);
 								                		dbM.closeDB();
-								                		zmq.close();
+								                		zmq.closeSocket();
 								                		if(progressDialog.isShowing())
 								                		{
 								                			progressDialog.dismiss();
@@ -520,7 +546,7 @@ public class CardFragment extends Fragment {
 										{
 											progressDialog.dismiss();
 										}
-										mConnection.close();
+										mConnection.closeSocket();
 										MyToast.alert("请求超时.");										
 									}
 								});								

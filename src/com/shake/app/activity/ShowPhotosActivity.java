@@ -14,7 +14,9 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
@@ -25,6 +27,8 @@ import android.widget.ImageView;
 import com.shake.app.Define;
 import com.shake.app.R;
 import com.shake.app.adapter.ChildAdapter;
+import com.shake.app.task.DecodeImageToBase64DataTask;
+import com.shake.app.task.DecodeImageToBase64DataTask.onTaskListener;
 import com.shake.app.utils.FileUtil;
 import com.shake.app.utils.ImageTools;
 import com.shake.app.utils.LocationTools;
@@ -96,6 +100,7 @@ public class ShowPhotosActivity extends Activity {
 					case 0:
 						{
 							final ProgressDialog progressDialog = new ProgressDialog(mContext);
+							final ProgressDialog loadingDialog = new ProgressDialog(mContext);
 							progressDialog.setCancelable(false);
 							
 							MyToast.alert("请与要接收的手机进行一次轻碰");
@@ -104,7 +109,7 @@ public class ShowPhotosActivity extends Activity {
 								
 								@Override
 								public void onShake() {
-									progressDialog.setMessage("正在定位...");
+									progressDialog.setMessage("正在建立连接...");
 									if(!progressDialog.isShowing())
 									{
 										progressDialog.show();
@@ -175,11 +180,32 @@ public class ShowPhotosActivity extends Activity {
 																			@Override
 																			public void onClick(DialogInterface dialog, int which) {
 																			
-																				String data = FileUtil.fileToBase64((String)adapter.getItem(position));
-																				String sendDataREQ = MyJsonCreator.createJsonToServer("3","3",data,target);
-																				zmq.send(sendDataREQ, false);
-																				progressDialog.show();
-																				progressDialog.setMessage("正在发送...");
+																				DecodeImageToBase64DataTask dtask = new DecodeImageToBase64DataTask();
+																				dtask.setOnTaskListener(new onTaskListener() {
+																					
+																					@Override
+																					public void onStart() {
+																						
+																						progressDialog.setMessage("正在读取图片...");
+																						progressDialog.show();
+																					}
+																					
+																					@Override
+																					public void onFinish(String base64Data) {
+																						progressDialog.dismiss();
+																						loadingDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+																						loadingDialog.setIndeterminate(true);
+																						loadingDialog.setProgressNumberFormat(null);
+																						loadingDialog.setProgressPercentFormat(null);
+																						loadingDialog.setMessage("正在发送...");
+																						loadingDialog.show();
+																						final String sendDataREQ = MyJsonCreator.createJsonToServer("3","3",base64Data,target);
+																						zmq.send(sendDataREQ, false);
+																						zmq.setTimeout(30*1000);
+																						
+																					}
+																				});
+																				dtask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, (String)adapter.getItem(position));
 																			}
 																		}).create();
 											                			alertDialog.setCancelable(false);
@@ -194,7 +220,7 @@ public class ShowPhotosActivity extends Activity {
 											                		}
 											                		MyVibrator.doVibration(500);
 											                		MyToast.alert("匹配失败:(");
-											                		zmq.close();
+											                		zmq.closeSocket();
 											                		break;
 											                	}
 											                	case 301://发送成功
@@ -202,6 +228,10 @@ public class ShowPhotosActivity extends Activity {
 											                		if(progressDialog.isShowing())
 											                		{
 											                			progressDialog.dismiss();
+											                		}
+											                		if(loadingDialog.isShowing())
+											                		{
+											                			loadingDialog.dismiss();
 											                		}
 											                		MyVibrator.doVibration(500);
 											                		MyToast.alert("发送完成!");
@@ -222,7 +252,11 @@ public class ShowPhotosActivity extends Activity {
 													{
 														progressDialog.dismiss();
 													}
-													mConnection.close();
+													if(loadingDialog.isShowing())
+							                		{
+							                			loadingDialog.dismiss();
+							                		}
+													mConnection.closeSocket();
 													MyToast.alert("请求超时.");
 												}
 												
@@ -261,5 +295,5 @@ public class ShowPhotosActivity extends Activity {
 		finish();
 		overridePendingTransition(0,R.anim.scale_out);
 	}	
-
+	
 }

@@ -266,7 +266,7 @@ public class ContactFragment extends Fragment {
 							
 							@Override
 							public void onShake() {
-								progressDialog.setMessage("正在定位...");
+								progressDialog.setMessage("正在建立连接...");
 								if(!progressDialog.isShowing())
 								{
 									progressDialog.show();
@@ -356,7 +356,7 @@ public class ContactFragment extends Fragment {
 										                		}
 										                		MyVibrator.doVibration(500);
 										                		MyToast.alert("匹配失败:(");
-										                		zmq.close();
+										                		zmq.closeSocket();
 										                		break;
 										                	}
 										                	case 301://发送成功
@@ -384,7 +384,7 @@ public class ContactFragment extends Fragment {
 												{
 													progressDialog.dismiss();
 												}
-												mConnection.close();
+												mConnection.closeSocket();
 												MyToast.alert("请求超时.");
 											}
 											
@@ -421,7 +421,7 @@ public class ContactFragment extends Fragment {
 					@Override
 					public void onShake() {
 						
-						progressDialog.setMessage("正在定位...");
+						progressDialog.setMessage("正在建立连接...");
 						if(!progressDialog.isShowing())
 						{
 							progressDialog.show();
@@ -470,6 +470,8 @@ public class ContactFragment extends Fragment {
 								                	{
 								                		MyVibrator.doVibration(500);
 								                		progressDialog.setMessage("匹配成功,正在接收...");
+								                		ZMQConnection.hasReturn = false;
+								                		ZMQConnection.lastActTime = System.currentTimeMillis();
 								                		break;
 								                	}
 								                	case 404://匹配失败
@@ -480,7 +482,7 @@ public class ContactFragment extends Fragment {
 								                		}
 								                		MyVibrator.doVibration(500);
 								                		MyToast.alert("匹配失败:(");
-								                		zmq.close();
+								                		zmq.closeSocket();
 								                		break;
 								                	}
 								                	case 999://连接取消
@@ -491,7 +493,7 @@ public class ContactFragment extends Fragment {
 								                		}
 								                		MyVibrator.doVibration(500);
 								                		MyToast.alert("本次连接已被取消.");
-								                		zmq.close();
+								                		zmq.closeSocket();
 								                		break;
 								                	}
 								                	case 300://接收成功
@@ -531,7 +533,7 @@ public class ContactFragment extends Fragment {
 												            		    .withValue(ContactsContract.CommonDataKinds.Photo.PHOTO,Base64.decode(data.getString("avatar"), Base64.DEFAULT))
 												            		    .build());
 												       getActivity().getContentResolver().applyBatch(ContactsContract.AUTHORITY, ops);
-								                		zmq.close();
+								                		zmq.closeSocket();
 								                		if(progressDialog.isShowing())
 								                		{
 								                			progressDialog.dismiss();
@@ -562,7 +564,7 @@ public class ContactFragment extends Fragment {
 										{
 											progressDialog.dismiss();
 										}
-										mConnection.close();
+										mConnection.closeSocket();
 										MyToast.alert("请求超时.");
 									}
 								});

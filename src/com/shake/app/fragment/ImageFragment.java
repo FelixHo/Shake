@@ -1,9 +1,6 @@
 package com.shake.app.fragment;
 
-import java.text.DateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -19,11 +16,11 @@ import android.content.Intent;
 import android.media.MediaScannerConnection;
 import android.media.MediaScannerConnection.OnScanCompletedListener;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v4.app.Fragment;
-import android.text.format.DateUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -41,10 +38,10 @@ import com.shake.app.activity.MainActivity;
 import com.shake.app.activity.ShowPhotosActivity;
 import com.shake.app.adapter.GroupAdapter;
 import com.shake.app.model.ImageBean;
+import com.shake.app.task.EncodeBase64DataToImageTask;
+import com.shake.app.task.EncodeBase64DataToImageTask.onTaskListener;
 import com.shake.app.task.InitImageGroupTask;
 import com.shake.app.task.InitImageGroupTask.OnTaskListener;
-import com.shake.app.utils.FileUtil;
-import com.shake.app.utils.ImageTools;
 import com.shake.app.utils.LocationTools;
 import com.shake.app.utils.LocationTools.MyLocationListener;
 import com.shake.app.utils.MyDateUtils;
@@ -203,7 +200,7 @@ public class ImageFragment extends Fragment {
 					@Override
 					public void onShake() {
 						
-						progressDialog.setMessage("正在定位...");
+						progressDialog.setMessage("正在建立连接...");
 						if(!progressDialog.isShowing())
 						{
 							progressDialog.show();
@@ -252,6 +249,8 @@ public class ImageFragment extends Fragment {
 								                	{
 								                		MyVibrator.doVibration(500);
 								                		progressDialog.setMessage("匹配成功,正在接收...");
+								                		ZMQConnection.hasReturn = false;
+								                		ZMQConnection.lastActTime = System.currentTimeMillis();
 								                		break;
 								                	}
 								                	case 404://匹配失败
@@ -262,7 +261,7 @@ public class ImageFragment extends Fragment {
 								                		}
 								                		MyVibrator.doVibration(500);
 								                		MyToast.alert("匹配失败:(");
-								                		zmq.close();
+								                		zmq.closeSocket();
 								                		break;
 								                	}
 								                	case 999://连接取消
@@ -273,32 +272,45 @@ public class ImageFragment extends Fragment {
 								                		}
 								                		MyVibrator.doVibration(500);
 								                		MyToast.alert("本次连接已被取消.");
-								                		zmq.close();
+								                		zmq.closeSocket();
 								                		break;
 								                	}
 								                	case 300://接收成功
 								                	{
+								                		EncodeBase64DataToImageTask etask = new EncodeBase64DataToImageTask();
 								                		
 								                		String base64_IMG = jso.getString("data");
 								                		String pic_name = "IMG_"+MyDateUtils.getCurrentDate(null)+".png";
 								                		String pic_path = HomeApp.getMyApplication().getPicPath()+"shake_pic/";
-								                		String path =ImageTools.savePhotoToSDCard(FileUtil.base64ToBitmap(base64_IMG),pic_path, pic_name, 1024);
-								                		MyVibrator.doVibration(500);
-								                		progressDialog.setMessage("接收完成,正在更新相册...");
-								                		MediaScannerConnection.scanFile(getActivity(), new String[]{path}, null, new OnScanCompletedListener() {
-																
-																@Override
-																public void onScanCompleted(String path, Uri uri) {
-																	if(progressDialog.isShowing())
-											                		{
-											                			progressDialog.dismiss();
-											                		}
-																	refreshHandelr.sendEmptyMessage(0);
-															          
-																}
-															});
-//								                
-								                		zmq.close();
+								                		String params[] = {base64_IMG,pic_path,pic_name};
+								                		
+								                		etask.setOnTaskListener(new onTaskListener() {
+															
+															@Override
+															public void onStart() {
+																MyVibrator.doVibration(500);
+										                		progressDialog.setMessage("转换中...");
+															}
+															
+															@Override
+															public void onFinish(String imagePath) {
+										                		progressDialog.setMessage("接收完成,正在更新相册...");
+										                		MediaScannerConnection.scanFile(getActivity(), new String[]{imagePath}, null, new OnScanCompletedListener() {
+																	
+																	@Override
+																	public void onScanCompleted(String path, Uri uri) {
+																		if(progressDialog.isShowing())
+												                		{
+												                			progressDialog.dismiss();
+												                		}
+																		refreshHandelr.sendEmptyMessage(0);
+																          
+																	}
+																});
+															}
+														});
+								                		etask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, params);
+								                		zmq.closeSocket();
 								                		break;
 								                		
 								                	}
@@ -317,7 +329,7 @@ public class ImageFragment extends Fragment {
 										{
 											progressDialog.dismiss();
 										}
-										mConnection.close();
+										mConnection.closeSocket();
 										MyToast.alert("请求超时.");
 									}
 								});

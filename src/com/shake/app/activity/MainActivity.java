@@ -11,6 +11,7 @@ import com.shake.app.libs.slidingmenu.SlidingMenu;
 import com.shake.app.utils.LocationTools;
 import com.shake.app.utils.MyActivityManager;
 import com.shake.app.utils.MyToast;
+import com.shake.app.utils.ZMQConnection;
 
 import de.tavendo.autobahn.WebSocketConnection;
 
@@ -72,6 +73,7 @@ public class MainActivity extends SlidingFragmentActivity {
             MyToast.alert("再按一次退出程序");
         } else {
         	LocationTools.stop();
+        	ZMQConnection.closeZMQ();
             MyActivityManager.getInstance().exit();
         }
 		return;

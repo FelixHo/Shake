@@ -10,18 +10,16 @@ import org.zeromq.ZMsg;
 
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
-import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnDismissListener;
-import android.content.Intent;
 import android.media.MediaPlayer;
 import android.media.MediaScannerConnection;
 import android.media.MediaScannerConnection.OnScanCompletedListener;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.provider.MediaStore;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -39,6 +37,9 @@ import com.shake.app.R;
 import com.shake.app.activity.MainActivity;
 import com.shake.app.adapter.MusicAdapter;
 import com.shake.app.model.Song;
+import com.shake.app.task.DecodeMusicToBase64DataTask;
+import com.shake.app.task.DecodeMusicToBase64DataTask.onTaskListener;
+import com.shake.app.task.EncodeBase64DataToMusicTask;
 import com.shake.app.task.InitMusicTask;
 import com.shake.app.task.InitMusicTask.OnTaskListener;
 import com.shake.app.utils.FileUtil;
@@ -240,6 +241,7 @@ public class MusicFragment extends Fragment {
 							}
 							
 							final ProgressDialog progressDialog = new ProgressDialog(getActivity());
+							final ProgressDialog loadingDialog = new ProgressDialog(getActivity());
 							progressDialog.setCancelable(false);
 							
 							MyToast.alert("请与要接收的手机进行一次轻碰");
@@ -248,7 +250,7 @@ public class MusicFragment extends Fragment {
 								
 								@Override
 								public void onShake() {
-									progressDialog.setMessage("正在定位...");
+									progressDialog.setMessage("正在建立连接...");
 									if(!progressDialog.isShowing())
 									{
 										progressDialog.show();
@@ -319,11 +321,29 @@ public class MusicFragment extends Fragment {
 																			@Override
 																			public void onClick(DialogInterface dialog, int which) {
 																			
-																				String data = song.getJSonString();
-																				String sendDataREQ = MyJsonCreator.createJsonToServer("4","3",data,target);
-																				zmq.send(sendDataREQ, false);
-																				progressDialog.show();
-																				progressDialog.setMessage("正在发送...");
+																				DecodeMusicToBase64DataTask dtask = new DecodeMusicToBase64DataTask();
+																				dtask.setOnTaskListener(new onTaskListener() {
+																					
+																					@Override
+																					public void onStart() {
+																						progressDialog.setMessage("准备发送...");
+																						progressDialog.show();
+																					}
+																					
+																					@Override
+																					public void onFinish(String base64Data) {
+																						String sendDataREQ = MyJsonCreator.createJsonToServer("4","3",base64Data,target);
+																						zmq.send(sendDataREQ, false);
+																						zmq.setTimeout(60*1000);
+																						loadingDialog.setMessage("正在发送...");
+																						loadingDialog.setIndeterminate(true);
+																						loadingDialog.setProgressNumberFormat(null);
+																						loadingDialog.setProgressPercentFormat(null);
+																						loadingDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+																						loadingDialog.show();
+																					}
+																				});
+																				dtask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR,song);
 																			}
 																		}).create();
 											                			alertDialog.setCancelable(false);
@@ -338,7 +358,7 @@ public class MusicFragment extends Fragment {
 											                		}
 											                		MyVibrator.doVibration(500);
 											                		MyToast.alert("匹配失败:(");
-											                		zmq.close();
+											                		zmq.closeSocket();
 											                		break;
 											                	}
 											                	case 301://发送成功
@@ -346,6 +366,10 @@ public class MusicFragment extends Fragment {
 											                		if(progressDialog.isShowing())
 											                		{
 											                			progressDialog.dismiss();
+											                		}
+											                		if(loadingDialog.isShowing())
+											                		{
+											                			loadingDialog.dismiss();
 											                		}
 											                		MyVibrator.doVibration(500);
 											                		MyToast.alert("发送完成!");
@@ -366,7 +390,11 @@ public class MusicFragment extends Fragment {
 													{
 														progressDialog.dismiss();
 													}
-													mConnection.close();
+													if(loadingDialog.isShowing())
+							                		{
+							                			loadingDialog.dismiss();
+							                		}
+													mConnection.closeSocket();
 													MyToast.alert("请求超时.");
 												}
 												
@@ -410,7 +438,7 @@ public class MusicFragment extends Fragment {
 					@Override
 					public void onShake() {
 						
-						progressDialog.setMessage("正在定位...");
+						progressDialog.setMessage("正在建立连接...");
 						if(!progressDialog.isShowing())
 						{
 							progressDialog.show();
@@ -459,6 +487,9 @@ public class MusicFragment extends Fragment {
 								                	{
 								                		MyVibrator.doVibration(500);
 								                		progressDialog.setMessage("匹配成功,正在接收...");
+								                		ZMQConnection.hasReturn = false;
+								                		ZMQConnection.lastActTime = System.currentTimeMillis();
+								                		zmq.setTimeout(60*1000);
 								                		break;
 								                	}
 								                	case 404://匹配失败
@@ -469,7 +500,7 @@ public class MusicFragment extends Fragment {
 								                		}
 								                		MyVibrator.doVibration(500);
 								                		MyToast.alert("匹配失败:(");
-								                		zmq.close();
+								                		zmq.closeSocket();
 								                		break;
 								                	}
 								                	case 999://连接取消
@@ -480,7 +511,7 @@ public class MusicFragment extends Fragment {
 								                		}
 								                		MyVibrator.doVibration(500);
 								                		MyToast.alert("本次连接已被取消.");
-								                		zmq.close();
+								                		zmq.closeSocket();
 								                		break;
 								                	}
 								                	case 300://接收成功
@@ -490,39 +521,36 @@ public class MusicFragment extends Fragment {
 								                		String name = data.getString("name");
 								                		String base64 =data.getString("data");
 								                		String path = HomeApp.getMyApplication().getMusicPath()+name;
-								                		
-								                		FileUtil.decoderBase64File(base64, path);
-								                		getActivity().getApplicationContext().sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.parse("file://"+path)));  
-								                		 Log.d("ZMQTask","音乐路径:"+"file://"+path);
-								                		ContentValues values = new ContentValues();  
-								                		 values.put(MediaStore.MediaColumns.DATA, path);  
-								                		 values.put(MediaStore.MediaColumns.TITLE, "exampletitle");  
-								                		 values.put(MediaStore.MediaColumns.MIME_TYPE, "audio/*");  
-								                		 values.put(MediaStore.Audio.Media.ARTIST, "cssounds ");  
-								                		 values.put(MediaStore.Audio.Media.IS_RINGTONE, true);  
-								                		 values.put(MediaStore.Audio.Media.IS_NOTIFICATION, true);  
-								                		 values.put(MediaStore.Audio.Media.IS_ALARM, true);  
-								                		 values.put(MediaStore.Audio.Media.IS_MUSIC, true); 
-								                		 getActivity().getContentResolver().insert(MediaStore.Audio.Media.getContentUriForPath(path), values);
-								                		 MyVibrator.doVibration(500);
-								                		 progressDialog.setMessage("接收完成,正在更新音乐库...");
-								                		 MediaScannerConnection.scanFile(getActivity(), new String[]{path}, null, new OnScanCompletedListener() {
+								                		String[] params = {base64 , path};
+								                		EncodeBase64DataToMusicTask etask = new EncodeBase64DataToMusicTask();
+								                		etask.setOnTaskListener(new EncodeBase64DataToMusicTask.onTaskListener() {
 															
 															@Override
-															public void onScanCompleted(String path, Uri uri) {
-																
-																if(progressDialog.isShowing())
-										                		{
-										                			progressDialog.dismiss();
-										                		}
-																refreshHandelr.sendEmptyMessage(0);
-																
+															public void onStart() {
+																MyVibrator.doVibration(500);
+																progressDialog.setMessage("正在转换数据...");
+															}
+															
+															@Override
+															public void onFinish(String musicPath) {
+																progressDialog.setMessage("接收完成,正在更新音乐库...");
+																MediaScannerConnection.scanFile(getActivity(), new String[]{musicPath}, null, new OnScanCompletedListener() {
+																	
+																	@Override
+																	public void onScanCompleted(String path, Uri uri) {
+																		
+																		if(progressDialog.isShowing())
+												                		{
+												                			progressDialog.dismiss();
+												                		}
+																		refreshHandelr.sendEmptyMessage(0);
+																		
+																	}
+																});
+																zmq.closeSocket();
 															}
 														});
-								                		 zmq.close();
-								                		
-								                		
-								                		getMusic();
+								                		etask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, params);
 								                		break;
 								                		
 								                	}
@@ -543,7 +571,7 @@ public class MusicFragment extends Fragment {
 										{
 											progressDialog.dismiss();
 										}
-										mConnection.close();
+										mConnection.closeSocket();
 										MyToast.alert("请求超时.");
 									}
 								});

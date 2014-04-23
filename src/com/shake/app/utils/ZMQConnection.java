@@ -7,13 +7,15 @@ import org.zeromq.ZMQ.Poller;
 import org.zeromq.ZMQ.Socket;
 import org.zeromq.ZMsg;
 
+import zmq.Msg;
+
 import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.StrictMode;
+import android.text.format.DateUtils;
 import android.util.Log;
 
 public class ZMQConnection {
-
 
 	private static ZMQConnection mConnection = null;
 	
@@ -35,11 +37,13 @@ public class ZMQConnection {
 	
 	private static ZMQSendTask sender = null;
 	
-	private static long lastActTime = 0;
+	public static long lastActTime = 0;
+	
+	private long timeout = 15000;
 	
 	private static boolean isSending = false;
 	
-	private static boolean hasReturn = false;
+	public static boolean hasReturn = false;
 	
 	public interface ZMQConnectionLisener
 	{
@@ -56,8 +60,9 @@ public class ZMQConnection {
 	public static ZMQConnection getInstance(String _url,String _socketID)
 	{
 		
-		if(mConnection==null)
+		if(mConnection==null||mConnection.ctx.getSockets().size()==0)
 		{
+			
 			if (android.os.Build.VERSION.SDK_INT > 9) 
 			{
 			    StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
@@ -69,7 +74,7 @@ public class ZMQConnection {
 			
 			mConnection.mSocket = mConnection.ctx.createSocket(ZMQ.DEALER);
 			
-			mConnection.socketID = _socketID;
+			mConnection.socketID = _socketID+"-at-"+MyDateUtils.getCurrentDate(null);//动态更换socketid
 			
 			mConnection.connURL = _url;
 			
@@ -77,14 +82,18 @@ public class ZMQConnection {
 			try
 			{
 				mConnection.mSocket.connect(mConnection.connURL);
+				Log.d("ZMQTask","init ZMQConnection....socket id:"+mConnection.socketID);
 			}
 			catch (Exception e)
 			{
+				Log.e("ZMQTask","init ZMQConnection failed!!!");
 				e.printStackTrace();
 				doTask = false;
 				isRunning = false;
 				mConnection.ctx.close();
 				mConnection.ctx.destroySocket(mConnection.mSocket);
+				mConnection.ctx.destroy();
+				mConnection=null;
 				return null;
 			}
 		}
@@ -99,8 +108,15 @@ public class ZMQConnection {
 		
 		if(!isRunning)
 		{
-			task = mConnection.new ZMQTask();
-			task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+			if(mConnection==null)
+			{
+				throw new NullPointerException("ZMQConnection has not init");
+			}
+			else
+			{
+				task = mConnection.new ZMQTask();
+				task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+			}
 //			task.execute();
 		}
 		else
@@ -111,9 +127,9 @@ public class ZMQConnection {
 	}
 	
 	/**
-	 * 关闭连接
+	 * 关闭当前socket连接,结束守护线程轮询
 	 */
-	public void close()
+	public void closeSocket()
 	{
 		if(isRunning)
 		{
@@ -122,17 +138,27 @@ public class ZMQConnection {
 		isRunning = false;
 	}
 	
+	public static void closeZMQ()
+	{
+		if(mConnection!=null)
+		{
+			mConnection.ctx.close();
+			mConnection.ctx.destroy();
+			Log.d("ZMQTask","ZMQ already close");
+		}
+	}
+	
 	/**
 	 * 发送数据
 	 * @param data
-	 * @param isCloseAfterSend 发送后是否马上关闭socket
+	 * @param claseSocketAfterSend 发送后是否马上关闭socket
 	 * @return
 	 */
-	public void send(String data,boolean isCloseAfterSend)
+	public void send(String data,boolean claseSocketAfterSend )
 	{
 		
 		sender =mConnection.new ZMQSendTask();
-		String flag = isCloseAfterSend?"1":"0";
+		String flag = claseSocketAfterSend?"1":"0";
 		String[] params = {data,flag};
 		sender.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR,params);//解决只能运行一个AsyncTask的问题
 	}
@@ -140,7 +166,14 @@ public class ZMQConnection {
 	public void setConnectionListener(ZMQConnectionLisener listener) {
 		this.listener = listener;
 	}
-
+	
+	/**
+	 * 设置send操作的超时时间 默认15秒
+	 * @param timeout
+	 */
+	public void setTimeout(long timeout) {
+		mConnection.timeout = timeout;
+	}
 	/**
 	 * ZMQ守护线程
 	 * @author Felix
@@ -153,27 +186,14 @@ public class ZMQConnection {
 			Log.d("ZMQTask", "open...");
 			doTask = true;
 			isRunning = true;
-//			mConnection.mSocket.setIdentity(mConnection.socketID.getBytes());
-//			try
-//			{
-//				mConnection.mSocket.connect(mConnection.connURL);
-//			}
-//			catch (Exception e)
-//			{
-//				e.printStackTrace();
-//				doTask = false;
-//				isRunning = false;
-//				mConnection.ctx.close();
-//				mConnection.ctx.destroySocket(mConnection.mSocket);
-//				return null;
-//			}
+
 			PollItem[] items = new PollItem[] { new PollItem(mConnection.mSocket, Poller.POLLIN) };
 			lastActTime = System.currentTimeMillis();
 			while(doTask)
 			{
 //				Log.d("ZMQTask","isSending:"+isSending);
 //				Log.d("ZMQTask","timeDis:"+(System.currentTimeMillis()-lastActTime));
-				if((isSending||!hasReturn)&&System.currentTimeMillis()-lastActTime>10000)
+				if((isSending||!hasReturn)&&System.currentTimeMillis()-lastActTime>mConnection.timeout)
 				{
 					ZMsg resvMsg = null;
 					publishProgress(resvMsg);
@@ -182,7 +202,6 @@ public class ZMQConnection {
 				int rc =ZMQ.poll(items, 200);
 				if(rc!=0)
 				Log.d("ZMQTask-rc",rc+"");
-//				Log.d("ZMQTask999", "runing...");
 				
 				if (items[0].isReadable()) 
 				{				
@@ -198,8 +217,8 @@ public class ZMQConnection {
 //			mConnection.ctx.close();
 //			mConnection.mSocket.setReceiveTimeOut(value)
 //			Log.d("ZMQTask", "close...");
-//			mConnection.ctx.destroySocket(mConnection.mSocket);
-//			Log.d("ZMQTask", "destroy...");
+			mConnection.ctx.destroySocket(mConnection.mSocket);
+			Log.d("ZMQTask", "destroy Socket...");
 //			mConnection.ctx.destroy();
 //			Log.d("ZMQTask","ctz destory");
 			
@@ -227,7 +246,6 @@ public class ZMQConnection {
 				task.cancel(true);
 			}
 		}
-		
 	}
 	
 	/**
@@ -241,7 +259,6 @@ public class ZMQConnection {
 		@Override
 		protected Void doInBackground(final String... params) {
 			mConnection.mSocket.setSendTimeOut(10000);
-			Log.d("ZMQTask",mConnection.ctx.getSockets().size()+"个socket");
 			lastActTime = System.currentTimeMillis();
 			isSending = true;
 			hasReturn = false;
@@ -255,12 +272,12 @@ public class ZMQConnection {
 					}
 				else
 				{
-						Log.d("ZMQTask","send failed~~may be time out~~~");
+						Log.e("ZMQTask","send failed~~may be time out~~~");
 					isSending = false;
 				}
 				if(params[1].equals("1"))
 				{
-					mConnection.close();
+					mConnection.closeSocket();
 				}
 			}
 			else
