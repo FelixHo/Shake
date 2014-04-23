@@ -81,6 +81,8 @@ public class MusicFragment extends Fragment {
 	
 	private Handler refreshHandelr;
 	
+	private ZMQConnection zmq = null;
+	
 	public MusicFragment() {
 		
 	}
@@ -251,6 +253,18 @@ public class MusicFragment extends Fragment {
 								@Override
 								public void onShake() {
 									progressDialog.setMessage("正在建立连接...");
+									progressDialog.setButton(ProgressDialog.BUTTON_NEGATIVE, "取消", new DialogInterface.OnClickListener() {
+										
+										@Override
+										public void onClick(DialogInterface dialog, int which) {
+											LocationTools.stop();
+											if(zmq!=null)
+											{
+												zmq.closeSocket();
+												Log.d("ZMQTask","cancel request....###########");
+											}
+										}
+									});
 									if(!progressDialog.isShowing())
 									{
 										progressDialog.show();
@@ -280,7 +294,7 @@ public class MusicFragment extends Fragment {
 											
 											ShakeEventDetector.stop();
 											
-											final ZMQConnection zmq = ZMQConnection.getInstance(Define.SERVER_URL, Define.MAC_ADDRESS);
+											zmq = ZMQConnection.getInstance(Define.SERVER_URL, Define.MAC_ADDRESS);
 											zmq.setConnectionListener(new ZMQConnectionLisener() {
 												
 												@Override
@@ -332,6 +346,12 @@ public class MusicFragment extends Fragment {
 																					
 																					@Override
 																					public void onFinish(String base64Data) {
+																						progressDialog.dismiss();
+																						if(zmq.ctx==null||zmq.ctx.getSockets().size()==0)
+																						{
+																							Log.d("ZMQTask","zmqTask already close, task end ");
+																							return;//zmqtask already close ，so do nothing here
+																						}
 																						String sendDataREQ = MyJsonCreator.createJsonToServer("4","3",base64Data,target);
 																						zmq.send(sendDataREQ, false);
 																						zmq.setTimeout(60*1000);
@@ -340,6 +360,17 @@ public class MusicFragment extends Fragment {
 																						loadingDialog.setProgressNumberFormat(null);
 																						loadingDialog.setProgressPercentFormat(null);
 																						loadingDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+																						loadingDialog.setButton(ProgressDialog.BUTTON_NEGATIVE, "取消", new DialogInterface.OnClickListener() {
+																							
+																							@Override
+																							public void onClick(DialogInterface dialog, int which) {
+																								if(zmq!=null)
+																								{
+																									zmq.closeSocket();
+																									Log.d("ZMQTask","cancel request....###########");
+																								}
+																							}
+																						});
 																						loadingDialog.show();
 																					}
 																				});
@@ -439,6 +470,18 @@ public class MusicFragment extends Fragment {
 					public void onShake() {
 						
 						progressDialog.setMessage("正在建立连接...");
+						progressDialog.setButton(ProgressDialog.BUTTON_NEGATIVE, "取消", new DialogInterface.OnClickListener() {
+							
+							@Override
+							public void onClick(DialogInterface dialog, int which) {
+								LocationTools.stop();
+								if(zmq!=null)
+								{
+									zmq.closeSocket();
+									Log.d("ZMQTask","cancel request....###########");
+								}
+							}
+						});
 						if(!progressDialog.isShowing())
 						{
 							progressDialog.show();
@@ -467,7 +510,7 @@ public class MusicFragment extends Fragment {
 									Log.d("发出的JSON:", connectREQ);								
 								
 								ShakeEventDetector.stop();
-								final ZMQConnection zmq = ZMQConnection.getInstance(Define.SERVER_URL, Define.MAC_ADDRESS);
+								zmq = ZMQConnection.getInstance(Define.SERVER_URL, Define.MAC_ADDRESS);
 								zmq.setConnectionListener(new ZMQConnectionLisener() {
 									
 									@Override

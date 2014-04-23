@@ -81,6 +81,8 @@ public class ContactFragment extends Fragment {
     
     private Button connBtn;
     
+    private ZMQConnection zmq = null;
+    
     /**
 	 * 上次第一个可见元素，用于滚动时记录标识。
 	 */
@@ -267,6 +269,18 @@ public class ContactFragment extends Fragment {
 							@Override
 							public void onShake() {
 								progressDialog.setMessage("正在建立连接...");
+								progressDialog.setButton(ProgressDialog.BUTTON_NEGATIVE, "取消", new DialogInterface.OnClickListener() {
+									
+									@Override
+									public void onClick(DialogInterface dialog, int which) {
+										LocationTools.stop();
+										if(zmq!=null)
+										{
+											zmq.closeSocket();
+											Log.d("ZMQTask","cancel request....###########");
+										}
+									}
+								});
 								if(!progressDialog.isShowing())
 								{
 									progressDialog.show();
@@ -296,7 +310,7 @@ public class ContactFragment extends Fragment {
 										
 										ShakeEventDetector.stop();
 										
-										final ZMQConnection zmq = ZMQConnection.getInstance(Define.SERVER_URL, Define.MAC_ADDRESS);
+										zmq = ZMQConnection.getInstance(Define.SERVER_URL, Define.MAC_ADDRESS);
 										zmq.setConnectionListener(new ZMQConnectionLisener() {
 											
 											@Override
@@ -422,6 +436,18 @@ public class ContactFragment extends Fragment {
 					public void onShake() {
 						
 						progressDialog.setMessage("正在建立连接...");
+						progressDialog.setButton(ProgressDialog.BUTTON_NEGATIVE, "取消", new DialogInterface.OnClickListener() {
+							
+							@Override
+							public void onClick(DialogInterface dialog, int which) {
+								LocationTools.stop();
+								if(zmq!=null)
+								{
+									zmq.closeSocket();
+									Log.d("ZMQTask","cancel request....###########");
+								}
+							}
+						});
 						if(!progressDialog.isShowing())
 						{
 							progressDialog.show();
@@ -450,7 +476,7 @@ public class ContactFragment extends Fragment {
 									Log.d("发出的JSON:", connectREQ);								
 								
 								ShakeEventDetector.stop();
-								final ZMQConnection zmq = ZMQConnection.getInstance(Define.SERVER_URL, Define.MAC_ADDRESS);
+								zmq = ZMQConnection.getInstance(Define.SERVER_URL, Define.MAC_ADDRESS);
 								zmq.setConnectionListener(new ZMQConnectionLisener() {
 									
 									@Override

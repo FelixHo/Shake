@@ -12,6 +12,7 @@ import org.zeromq.ZMQ.Socket;
 import org.zeromq.ZMsg;
 
 import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.media.MediaScannerConnection;
 import android.media.MediaScannerConnection.OnScanCompletedListener;
@@ -76,6 +77,8 @@ public class ImageFragment extends Fragment {
 	private Button connBtn;
 	
 	private Handler refreshHandelr;
+	
+	private ZMQConnection zmq = null;
 	
 	public ImageFragment() {
 		
@@ -201,6 +204,18 @@ public class ImageFragment extends Fragment {
 					public void onShake() {
 						
 						progressDialog.setMessage("正在建立连接...");
+						progressDialog.setButton(ProgressDialog.BUTTON_NEGATIVE, "取消", new DialogInterface.OnClickListener() {
+							
+							@Override
+							public void onClick(DialogInterface dialog, int which) {
+								LocationTools.stop();
+								if(zmq!=null)
+								{
+									zmq.closeSocket();
+									Log.d("ZMQTask","cancel request....###########");
+								}
+							}
+						});
 						if(!progressDialog.isShowing())
 						{
 							progressDialog.show();
@@ -229,7 +244,7 @@ public class ImageFragment extends Fragment {
 									Log.d("发出的JSON:", connectREQ);								
 								
 								ShakeEventDetector.stop();
-								final ZMQConnection zmq = ZMQConnection.getInstance(Define.SERVER_URL, Define.MAC_ADDRESS);
+								zmq = ZMQConnection.getInstance(Define.SERVER_URL, Define.MAC_ADDRESS);
 								zmq.setConnectionListener(new ZMQConnectionLisener() {
 									
 									@Override

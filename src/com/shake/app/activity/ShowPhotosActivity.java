@@ -4,8 +4,8 @@ import java.util.List;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.zeromq.ZMsg;
 import org.zeromq.ZMQ.Socket;
+import org.zeromq.ZMsg;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -16,7 +16,6 @@ import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Handler;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
@@ -32,15 +31,15 @@ import com.shake.app.task.DecodeImageToBase64DataTask.onTaskListener;
 import com.shake.app.utils.FileUtil;
 import com.shake.app.utils.ImageTools;
 import com.shake.app.utils.LocationTools;
+import com.shake.app.utils.LocationTools.MyLocationListener;
 import com.shake.app.utils.MyJsonCreator;
 import com.shake.app.utils.MySharedPreferences;
 import com.shake.app.utils.MyToast;
 import com.shake.app.utils.MyVibrator;
 import com.shake.app.utils.ShakeEventDetector;
+import com.shake.app.utils.ShakeEventDetector.OnShakeListener;
 import com.shake.app.utils.ViewUtil;
 import com.shake.app.utils.ZMQConnection;
-import com.shake.app.utils.LocationTools.MyLocationListener;
-import com.shake.app.utils.ShakeEventDetector.OnShakeListener;
 import com.shake.app.utils.ZMQConnection.ZMQConnectionLisener;
 
 public class ShowPhotosActivity extends Activity {
@@ -57,6 +56,8 @@ public class ShowPhotosActivity extends Activity {
 	private ChildAdapter adapter;
 	
 	private Context mContext;
+	
+	private ZMQConnection zmq;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -110,6 +111,18 @@ public class ShowPhotosActivity extends Activity {
 								@Override
 								public void onShake() {
 									progressDialog.setMessage("正在建立连接...");
+									progressDialog.setButton(ProgressDialog.BUTTON_NEGATIVE, "取消", new DialogInterface.OnClickListener() {
+										
+										@Override
+										public void onClick(DialogInterface dialog, int which) {
+											LocationTools.stop();
+											if(zmq!=null)
+											{
+												zmq.closeSocket();
+												Log.d("ZMQTask","cancel request....###########");
+											}
+										}
+									});
 									if(!progressDialog.isShowing())
 									{
 										progressDialog.show();
@@ -139,7 +152,7 @@ public class ShowPhotosActivity extends Activity {
 											
 											ShakeEventDetector.stop();
 											
-											final ZMQConnection zmq = ZMQConnection.getInstance(Define.SERVER_URL, Define.MAC_ADDRESS);
+											zmq = ZMQConnection.getInstance(Define.SERVER_URL, Define.MAC_ADDRESS);
 											zmq.setConnectionListener(new ZMQConnectionLisener() {
 												
 												@Override
@@ -193,11 +206,27 @@ public class ShowPhotosActivity extends Activity {
 																					@Override
 																					public void onFinish(String base64Data) {
 																						progressDialog.dismiss();
+																						if(zmq.ctx==null||zmq.ctx.getSockets().size()==0)
+																						{
+																							Log.d("ZMQTask","zmqTask already close, task end ");
+																							return;//zmqtask already close ，so do nothing here
+																						}
 																						loadingDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
 																						loadingDialog.setIndeterminate(true);
 																						loadingDialog.setProgressNumberFormat(null);
 																						loadingDialog.setProgressPercentFormat(null);
 																						loadingDialog.setMessage("正在发送...");
+																						loadingDialog.setButton(ProgressDialog.BUTTON_NEGATIVE, "取消", new DialogInterface.OnClickListener() {
+																							
+																							@Override
+																							public void onClick(DialogInterface dialog, int which) {
+																								if(zmq!=null)
+																								{
+																									zmq.closeSocket();
+																									Log.d("ZMQTask","cancel request....###########");
+																								}
+																							}
+																						});
 																						loadingDialog.show();
 																						final String sendDataREQ = MyJsonCreator.createJsonToServer("3","3",base64Data,target);
 																						zmq.send(sendDataREQ, false);
@@ -292,6 +321,7 @@ public class ShowPhotosActivity extends Activity {
 	@Override
 	public void onBackPressed() {
 		super.onBackPressed();
+		ShakeEventDetector.stop();
 		finish();
 		overridePendingTransition(0,R.anim.scale_out);
 	}	

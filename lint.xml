@@ -4,5 +4,6 @@
     <issue id="FloatMath">
         <ignore path="src/com/shake/app/libs/slidingmenu/CustomViewAbove.java" />
     </issue>
+    <issue id="HandlerLeak" severity="ignore" />
     <issue id="SimpleDateFormat" severity="ignore" />
 </lint>

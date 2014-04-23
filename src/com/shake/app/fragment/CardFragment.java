@@ -1,8 +1,6 @@
 package com.shake.app.fragment;
 
 import java.util.ArrayList;
-import java.util.Timer;
-import java.util.TimerTask;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -14,14 +12,11 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
-import android.content.DialogInterface.OnDismissListener;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
-import android.nfc.NfcAdapter.CreateBeamUrisCallback;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Message;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -51,12 +46,12 @@ import com.shake.app.utils.FileUtil;
 import com.shake.app.utils.ImageTools;
 import com.shake.app.utils.LocationTools;
 import com.shake.app.utils.LocationTools.MyLocationListener;
-import com.shake.app.utils.ShakeEventDetector.OnShakeListener;
 import com.shake.app.utils.MyJsonCreator;
 import com.shake.app.utils.MySharedPreferences;
 import com.shake.app.utils.MyToast;
 import com.shake.app.utils.MyVibrator;
 import com.shake.app.utils.ShakeEventDetector;
+import com.shake.app.utils.ShakeEventDetector.OnShakeListener;
 import com.shake.app.utils.ViewUtil;
 import com.shake.app.utils.ZMQConnection;
 import com.shake.app.utils.ZMQConnection.ZMQConnectionLisener;
@@ -126,6 +121,8 @@ public class CardFragment extends Fragment {
 	public static final String EDIT_REQUEST_KEY = "EDIT_REQUEST";
 	
 	private InitCardsTask task;
+	
+	private ZMQConnection zmq = null;
 	
 	public CardFragment()
 	{
@@ -224,6 +221,7 @@ public class CardFragment extends Fragment {
 				final ProgressDialog progressDialog = new ProgressDialog(getActivity());
 				progressDialog.setCancelable(false);
 				
+				
 				MyToast.alert("请与要接收的手机进行一次轻碰");
 				
 				ShakeEventDetector.start(new OnShakeListener() {
@@ -231,6 +229,18 @@ public class CardFragment extends Fragment {
 					@Override
 					public void onShake() {
 						progressDialog.setMessage("正在建立连接...");
+						progressDialog.setButton(ProgressDialog.BUTTON_NEGATIVE, "取消", new DialogInterface.OnClickListener() {
+							
+							@Override
+							public void onClick(DialogInterface dialog, int which) {
+								LocationTools.stop();
+								if(zmq!=null)
+								{
+									zmq.closeSocket();
+									Log.d("ZMQTask","cancel request....###########");
+								}
+							}
+						});
 						if(!progressDialog.isShowing())
 						{
 							progressDialog.show();
@@ -260,7 +270,7 @@ public class CardFragment extends Fragment {
 								
 								ShakeEventDetector.stop();
 								
-								final ZMQConnection zmq = ZMQConnection.getInstance(Define.SERVER_URL, Define.MAC_ADDRESS);
+								zmq = ZMQConnection.getInstance(Define.SERVER_URL, Define.MAC_ADDRESS);
 								zmq.setConnectionListener(new ZMQConnectionLisener() {
 									
 									@Override
@@ -381,7 +391,7 @@ public class CardFragment extends Fragment {
 							}
 						});
 					}
-				});				
+				});			
 			}
 		});
 		
@@ -420,6 +430,18 @@ public class CardFragment extends Fragment {
 					public void onShake() {
 						
 						progressDialog.setMessage("正在建立连接...");
+						progressDialog.setButton(ProgressDialog.BUTTON_NEGATIVE, "取消", new DialogInterface.OnClickListener() {
+							
+							@Override
+							public void onClick(DialogInterface dialog, int which) {
+								LocationTools.stop();
+								if(zmq!=null)
+								{
+									zmq.closeSocket();
+									Log.d("ZMQTask","cancel request....###########");
+								}
+							}
+						});
 						if(!progressDialog.isShowing())
 						{
 							progressDialog.show();
@@ -448,7 +470,7 @@ public class CardFragment extends Fragment {
 									Log.d("发出的JSON:", connectREQ);								
 								
 								ShakeEventDetector.stop();
-								final ZMQConnection zmq = ZMQConnection.getInstance(Define.SERVER_URL, Define.MAC_ADDRESS);
+								zmq = ZMQConnection.getInstance(Define.SERVER_URL, Define.MAC_ADDRESS);
 								
 								zmq.setConnectionListener(new ZMQConnectionLisener() {
 									

@@ -7,19 +7,16 @@ import org.zeromq.ZMQ.Poller;
 import org.zeromq.ZMQ.Socket;
 import org.zeromq.ZMsg;
 
-import zmq.Msg;
-
 import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.StrictMode;
-import android.text.format.DateUtils;
 import android.util.Log;
 
 public class ZMQConnection {
 
 	private static ZMQConnection mConnection = null;
 	
-	private  ZContext ctx = null;
+	public  ZContext ctx = null;
 	
 	private  Socket mSocket = null;
 	
@@ -59,7 +56,7 @@ public class ZMQConnection {
 	
 	public static ZMQConnection getInstance(String _url,String _socketID)
 	{
-		
+		mConnection =null;//new everytime；
 		if(mConnection==null||mConnection.ctx.getSockets().size()==0)
 		{
 			
@@ -117,7 +114,6 @@ public class ZMQConnection {
 				task = mConnection.new ZMQTask();
 				task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 			}
-//			task.execute();
 		}
 		else
 		{
@@ -189,39 +185,43 @@ public class ZMQConnection {
 
 			PollItem[] items = new PollItem[] { new PollItem(mConnection.mSocket, Poller.POLLIN) };
 			lastActTime = System.currentTimeMillis();
-			while(doTask)
+			try
 			{
-//				Log.d("ZMQTask","isSending:"+isSending);
-//				Log.d("ZMQTask","timeDis:"+(System.currentTimeMillis()-lastActTime));
-				if((isSending||!hasReturn)&&System.currentTimeMillis()-lastActTime>mConnection.timeout)
+				while(doTask)
 				{
-					ZMsg resvMsg = null;
-					publishProgress(resvMsg);
-					isSending = false;
-				}
-				int rc =ZMQ.poll(items, 200);
-				if(rc!=0)
-				Log.d("ZMQTask-rc",rc+"");
-				
-				if (items[0].isReadable()) 
-				{				
-					hasReturn =true;
-//					ZMsg resvMsg = ZMsg.recvMsg(mConnection.mSocket,ZMQ.DONTWAIT);
-					ZMsg resvMsg = ZMsg.recvMsg(mConnection.mSocket);
-					Log.d("ZMQTask", "receive");
-					publishProgress(resvMsg);
+					if((isSending||!hasReturn)&&System.currentTimeMillis()-lastActTime>mConnection.timeout)
+					{
+						ZMsg resvMsg = null;
+						publishProgress(resvMsg);
+						isSending = false;
+					}
+					int rc =ZMQ.poll(items, 100);
+					if(rc!=0)
+					Log.d("ZMQTask-rc",rc+"");
+					
+					if (items[0].isReadable()) 
+					{				
+						hasReturn =true;
+	//					ZMsg resvMsg = ZMsg.recvMsg(mConnection.mSocket,ZMQ.DONTWAIT);
+						ZMsg resvMsg = ZMsg.recvMsg(mConnection.mSocket);
+						Log.d("ZMQTask", "receive");
+						publishProgress(resvMsg);
+						
+					}
 					
 				}
-				
+				mConnection.ctx.close();
+	//			mConnection.mSocket.setReceiveTimeOut(value)
+				Log.d("ZMQTask", "ctx close...");
+				mConnection.ctx.destroySocket(mConnection.mSocket);
+				Log.d("ZMQTask", "destroy Socket...");
+				mConnection.ctx.destroy();
+				Log.d("ZMQTask","ctz destory");
 			}
-//			mConnection.ctx.close();
-//			mConnection.mSocket.setReceiveTimeOut(value)
-//			Log.d("ZMQTask", "close...");
-			mConnection.ctx.destroySocket(mConnection.mSocket);
-			Log.d("ZMQTask", "destroy Socket...");
-//			mConnection.ctx.destroy();
-//			Log.d("ZMQTask","ctz destory");
-			
+			catch(Exception e)
+			{
+				e.printStackTrace();
+			}
 			return null;
 		}
 
@@ -258,33 +258,40 @@ public class ZMQConnection {
 
 		@Override
 		protected Void doInBackground(final String... params) {
-			mConnection.mSocket.setSendTimeOut(10000);
-			lastActTime = System.currentTimeMillis();
-			isSending = true;
-			hasReturn = false;
-			Log.d("ZMQTask",params[0]+"  is sending to the server");
-			if(isRunning)
+			try
 			{
-				if(mConnection.mSocket.send(params[0]))
+				mConnection.mSocket.setSendTimeOut(10000);
+				lastActTime = System.currentTimeMillis();
+				isSending = true;
+				hasReturn = false;
+				Log.d("ZMQTask",params[0]+"  is sending to the server");
+				if(isRunning)
+				{
+					if(mConnection.mSocket.send(params[0]))
 					{
 						Log.d("ZMQTask","send success!!!....");
 						isSending = false;
 					}
+					else
+					{
+						Log.e("ZMQTask","send failed~~may be time out~~~");
+						isSending = false;
+					}
+					if(params[1].equals("1"))
+					{
+						mConnection.closeSocket();
+					}
+				}
 				else
 				{
-						Log.e("ZMQTask","send failed~~may be time out~~~");
-					isSending = false;
-				}
-				if(params[1].equals("1"))
-				{
-					mConnection.closeSocket();
+					isSending = false;				
+					publishProgress(params);
+					
 				}
 			}
-			else
+			catch(Exception e)
 			{
-				isSending = false;				
-				publishProgress(params);
-				
+				e.printStackTrace();
 			}
 			return null;
 		}
@@ -308,6 +315,15 @@ public class ZMQConnection {
 					}
 				}
 			}, 500);
+		}
+
+		@Override
+		protected void onPostExecute(Void result) {
+			super.onPostExecute(result);
+			if(sender!=null)
+			{
+				sender.cancel(true);
+			}
 		}
 		
 	}

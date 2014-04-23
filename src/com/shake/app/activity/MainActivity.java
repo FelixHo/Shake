@@ -11,6 +11,7 @@ import com.shake.app.libs.slidingmenu.SlidingMenu;
 import com.shake.app.utils.LocationTools;
 import com.shake.app.utils.MyActivityManager;
 import com.shake.app.utils.MyToast;
+import com.shake.app.utils.ShakeEventDetector;
 import com.shake.app.utils.ZMQConnection;
 
 import de.tavendo.autobahn.WebSocketConnection;
@@ -74,6 +75,7 @@ public class MainActivity extends SlidingFragmentActivity {
         } else {
         	LocationTools.stop();
         	ZMQConnection.closeZMQ();
+        	ShakeEventDetector.stop();
             MyActivityManager.getInstance().exit();
         }
 		return;
@@ -107,6 +109,7 @@ public class MainActivity extends SlidingFragmentActivity {
 	 * @author Felix
 	 */
 	public void switchContent(final Fragment fragment) {
+		ShakeEventDetector.stop();
 		mContent = fragment;
 		getSupportFragmentManager()
 		.beginTransaction()
@@ -121,7 +124,8 @@ public class MainActivity extends SlidingFragmentActivity {
 	}
 
 	@Override
-	protected void onDestroy() {
-		super.onDestroy();
+	protected void onPause() {
+		super.onPause();
+		ShakeEventDetector.stop();
 	}
 }
