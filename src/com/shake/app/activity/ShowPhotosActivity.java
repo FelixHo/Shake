@@ -13,6 +13,7 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -141,9 +142,20 @@ public class ShowPhotosActivity extends Activity {
 											JSONObject jso = new JSONObject();
 											try 
 											{
-												jso.put("name",MySharedPreferences.getShared(Define.CONFINFO, Define.USER_INFO_NAME_KEY, false));
+												String name_str = MySharedPreferences.getShared(Define.CONFINFO, Define.USER_INFO_NAME_KEY, false);
+												String avatar_path = MySharedPreferences.getShared(Define.CONFINFO, Define.USER_INFO_AVATAR_KEY, false);
+												jso.put("name",name_str);
 												jso.put("lat", location[0]);//纬度
 												jso.put("lon",location[1]);//经度
+												if(avatar_path==null||avatar_path.equals(""))
+												{
+													jso.put("avatar","");
+												}
+												else
+												{
+													Bitmap avatar_small = ImageTools.decodeBitmapFromFileInSampleSize(avatar_path, ViewUtil.dp(120),ViewUtil.dp(120));
+													jso.put("avatar",FileUtil.bitmapToBase64(avatar_small));
+												}
 												String data = jso.toString();
 												
 												String connectREQ = MyJsonCreator.createJsonToServer("3","1",data,null);						
@@ -170,14 +182,19 @@ public class ShowPhotosActivity extends Activity {
 											                	case 200://匹配成功
 											                		{
 											                			String name = new JSONObject(jso.getString("data")).getString("name");//匹配者名字
-											                			final String target = new JSONObject(jso.getString("data")).getString("id");
+											                			Bitmap match_avatar = FileUtil.base64ToBitmap(new JSONObject(jso.getString("data")).getString("avatar")); 
+											                			Drawable icon = ImageTools.bitmapToDrawable(mContext, match_avatar);
+											                			         icon = ImageTools.resizeDrawable(mContext, icon, ViewUtil.dp(60), ViewUtil.dp(60));
+											                			final String target =  new JSONObject(jso.getString("data")).getString("id");
 											                			if(progressDialog.isShowing())
 												                		{
 												                			progressDialog.dismiss();
 												                		}
 											                			
 											                			final AlertDialog alertDialog = new AlertDialog.Builder(mContext)
-											                			.setMessage("匹配到  "+name+" 的手机,是否继续?")
+											                			.setTitle("匹配到 "+name+" 的手机")
+											                			.setIcon(icon)
+											                			.setMessage("是否继续?")
 											                			.setNegativeButton("否", new DialogInterface.OnClickListener() {
 																			
 																			@Override

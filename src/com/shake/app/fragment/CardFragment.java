@@ -262,6 +262,15 @@ public class CardFragment extends Fragment {
 									jso.put("name",name_str);
 									jso.put("lat", location[0]);//纬度
 									jso.put("lon",location[1]);//经度
+									if(avatar_path==null||avatar_path.equals(""))
+									{
+										jso.put("avatar","");
+									}
+									else
+									{
+										Bitmap avatar_small = ImageTools.decodeBitmapFromFileInSampleSize(avatar_path, ViewUtil.dp(120),ViewUtil.dp(120));
+										jso.put("avatar",FileUtil.bitmapToBase64(avatar_small));
+									}
 									String data = jso.toString();
 									Log.d("ZMQJSON", data);
 									String connectREQ = MyJsonCreator.createJsonToServer("1","1",data,null);						
@@ -288,7 +297,9 @@ public class CardFragment extends Fragment {
 								                	case 200://匹配成功
 								                		{
 								                			String name = new JSONObject(jso.getString("data")).getString("name");//匹配者名字
-//								                			String name = jso.getJSONObject("data").getString("name");
+								                			Bitmap match_avatar = FileUtil.base64ToBitmap(new JSONObject(jso.getString("data")).getString("avatar")); 
+								                			Drawable icon = ImageTools.bitmapToDrawable(getActivity(), match_avatar);
+								                			         icon = ImageTools.resizeDrawable(getActivity(), icon, ViewUtil.dp(60), ViewUtil.dp(60));
 								                			final String target =  new JSONObject(jso.getString("data")).getString("id");
 								                			if(progressDialog.isShowing())
 									                		{
@@ -296,7 +307,9 @@ public class CardFragment extends Fragment {
 									                		}
 								                			
 								                			final AlertDialog alertDialog = new AlertDialog.Builder(getActivity())
-								                			.setMessage("匹配到  "+name+" 的手机,是否继续?")
+								                			.setTitle("匹配到 "+name+" 的手机")
+								                			.setIcon(icon)
+								                			.setMessage("是否继续?")
 								                			.setNegativeButton("否", new DialogInterface.OnClickListener() {
 																
 																@Override
@@ -400,29 +413,7 @@ public class CardFragment extends Fragment {
 			@Override
 			public void onClick(View v) {
 				final ProgressDialog progressDialog = new ProgressDialog(getActivity());
-				progressDialog.setCancelable(false);
-//				final Handler updateTimeHandler = new Handler()
-//				{  
-//					int second = 0;
-//			       public void handleMessage(Message msg) 
-//			       {  
-//			    	   
-//			    	   progressDialog.setTitle("连接时长"+second+"秒");
-//			    	   second++;
-//			        }    
-//				};  
-//				TimerTask timetask = new TimerTask() {
-//					
-//					@Override
-//					public void run() {
-//						
-//						updateTimeHandler.sendEmptyMessage(0);
-//					}
-//				};
-//				Timer timer =new Timer();
-//				timer.schedule(timetask, 0, 1000);
-				
-				
+				progressDialog.setCancelable(false);				
 				MyToast.alert("请与要获取信息的手机进行一次轻碰");
 				ShakeEventDetector.start(new OnShakeListener() {
 					
@@ -463,6 +454,15 @@ public class CardFragment extends Fragment {
 									jso.put("name",name_str);
 									jso.put("lat", location[0]);//纬度
 									jso.put("lon",location[1]);//经度
+									if(avatar_path==null||avatar_path.equals(""))
+									{
+										jso.put("avatar","");
+									}
+									else
+									{
+										Bitmap avatar_small = ImageTools.decodeBitmapFromFileInSampleSize(avatar_path, ViewUtil.dp(120),ViewUtil.dp(120));
+										jso.put("avatar",FileUtil.bitmapToBase64(avatar_small));
+									}
 									String data = jso.toString();
 									
 									String connectREQ = MyJsonCreator.createJsonToServer("1","2",data,null);						

@@ -14,6 +14,7 @@ import org.zeromq.ZMsg;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.media.MediaScannerConnection;
 import android.media.MediaScannerConnection.OnScanCompletedListener;
 import android.net.Uri;
@@ -45,12 +46,15 @@ import com.shake.app.task.InitImageGroupTask;
 import com.shake.app.task.InitImageGroupTask.OnTaskListener;
 import com.shake.app.utils.LocationTools;
 import com.shake.app.utils.LocationTools.MyLocationListener;
+import com.shake.app.utils.FileUtil;
+import com.shake.app.utils.ImageTools;
 import com.shake.app.utils.MyDateUtils;
 import com.shake.app.utils.MyJsonCreator;
 import com.shake.app.utils.MySharedPreferences;
 import com.shake.app.utils.MyToast;
 import com.shake.app.utils.MyVibrator;
 import com.shake.app.utils.ShakeEventDetector;
+import com.shake.app.utils.ViewUtil;
 import com.shake.app.utils.ShakeEventDetector.OnShakeListener;
 import com.shake.app.utils.ZMQConnection;
 import com.shake.app.utils.ZMQConnection.ZMQConnectionLisener;
@@ -234,9 +238,20 @@ public class ImageFragment extends Fragment {
 								JSONObject jso = new JSONObject();
 								try 
 								{
-									jso.put("name",MySharedPreferences.getShared(Define.CONFINFO, Define.USER_INFO_NAME_KEY, false));
+									String name_str = MySharedPreferences.getShared(Define.CONFINFO, Define.USER_INFO_NAME_KEY, false);
+									String avatar_path = MySharedPreferences.getShared(Define.CONFINFO, Define.USER_INFO_AVATAR_KEY, false);
+									jso.put("name",name_str);
 									jso.put("lat", location[0]);//纬度
 									jso.put("lon",location[1]);//经度
+									if(avatar_path==null||avatar_path.equals(""))
+									{
+										jso.put("avatar","");
+									}
+									else
+									{
+										Bitmap avatar_small = ImageTools.decodeBitmapFromFileInSampleSize(avatar_path, ViewUtil.dp(120),ViewUtil.dp(120));
+										jso.put("avatar",FileUtil.bitmapToBase64(avatar_small));
+									}
 									String data = jso.toString();
 									
 									String connectREQ = MyJsonCreator.createJsonToServer("3","2",data,null);						

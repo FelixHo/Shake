@@ -212,9 +212,8 @@ public final class ImageTools {
 		 * @param bitmap
 		 * @return
 		 */
-		@SuppressWarnings("deprecation")
-		public static Drawable bitmapToDrawable(Bitmap bitmap) {
-			return new BitmapDrawable(bitmap);
+		public static Drawable bitmapToDrawable(Context c ,Bitmap bitmap) {
+			return new BitmapDrawable(c.getResources(),bitmap);
 		}
 
 		/**
