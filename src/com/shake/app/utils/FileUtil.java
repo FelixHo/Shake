@@ -773,6 +773,46 @@ public class FileUtil {
 	}
 	
 	/**
+	 * 文件转byte[]
+	 * @param filePath
+	 * @return
+	 */
+	public static byte[] fileToByteArray(String filePath)
+	{
+		InputStream inputStream = null;
+		try 
+		{
+			inputStream = new FileInputStream(new File(filePath));
+		} catch (FileNotFoundException e1) {
+			e1.printStackTrace();
+		}
+		byte[] bytes;
+		byte[] buffer = new byte[8192];
+		int bytesRead;
+		ByteArrayOutputStream output = new ByteArrayOutputStream();
+		try {
+		    while ((bytesRead = inputStream.read(buffer)) != -1) {
+		    output.write(buffer, 0, bytesRead);
+		}
+		} catch (IOException e) {
+		e.printStackTrace();
+		}
+		finally
+		{
+			if(null!=inputStream)
+			{
+				try 
+				{
+					inputStream.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+		bytes = output.toByteArray();
+		return bytes;
+	}
+	/**
 	 * 压缩图片文件到指定大小，并转为base64格式
 	 * @param imagePath
 	 * @param targetKB

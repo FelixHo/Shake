@@ -10,17 +10,13 @@ import org.zeromq.ZMsg;
 
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
-import android.content.ContentProviderOperation;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.OperationApplicationException;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.RemoteException;
-import android.provider.ContactsContract;
 import android.support.v4.app.Fragment;
 import android.util.Base64;
 import android.util.Log;
@@ -46,10 +42,11 @@ import com.shake.app.adapter.ContactAdapter;
 import com.shake.app.model.Contact;
 import com.shake.app.task.InitContactsTask;
 import com.shake.app.task.InitContactsTask.onTaskListener;
+import com.shake.app.utils.CommonUtils;
+import com.shake.app.utils.FileUtil;
 import com.shake.app.utils.ImageTools;
 import com.shake.app.utils.LocationTools;
 import com.shake.app.utils.LocationTools.MyLocationListener;
-import com.shake.app.utils.FileUtil;
 import com.shake.app.utils.MyJsonCreator;
 import com.shake.app.utils.MySharedPreferences;
 import com.shake.app.utils.MyToast;
@@ -254,6 +251,27 @@ public class ContactFragment extends Fragment {
 						.setCanceledOnTouchOutside(true);						
 					}
 				})
+				.setNeutralButton("删除",new DialogInterface.OnClickListener() {
+							
+							@Override
+							public void onClick(DialogInterface dialog, int which) {
+								boolean isSuccess = false;
+								for(String number:numbers)
+								{
+									isSuccess = CommonUtils.deleteContact(getActivity(), number, contact.getName());
+								}
+								if(isSuccess)
+								{
+									MyToast.alert("已从通讯录移除 "+contact.getName()+" 联系人");
+									HomeApp.setContactsList(null);
+									getContacts();
+								}
+								else
+								{
+									MyToast.alert("操作失败!");
+								}
+							}
+						})
 				.setNegativeButton("取消", null)
 				.setPositiveButton("传给朋友", new DialogInterface.OnClickListener() {
 					
@@ -555,39 +573,13 @@ public class ContactFragment extends Fragment {
 								                	{
 								                		
 								                		JSONObject data = new JSONObject(jso.getString("data"));
-								                		
-								                		ArrayList<ContentProviderOperation> ops = new ArrayList<ContentProviderOperation>();
-								                		
-								                		ops.add(ContentProviderOperation.newInsert(ContactsContract.RawContacts.CONTENT_URI)
-								                                .withValue(ContactsContract.RawContacts.ACCOUNT_TYPE, null)
-								                                .withValue(ContactsContract.RawContacts.ACCOUNT_NAME, null)
-								                                .build());
-								                        ops.add(ContentProviderOperation.newInsert(ContactsContract.Data.CONTENT_URI)
-								                                .withValueBackReference(ContactsContract.Data.RAW_CONTACT_ID, 0)
-								                                .withValue(ContactsContract.Data.MIMETYPE,ContactsContract.CommonDataKinds.StructuredName.CONTENT_ITEM_TYPE)
-								                                .withValue(ContactsContract.CommonDataKinds.StructuredName.DISPLAY_NAME, data.getString("name"))
-								                                .build());
-								                        
-								                        		JSONArray jsa = new JSONArray(data.getString("numbers"));
-								                        
-												              for(int i=0;i<jsa.length();i++)
-												              {
-												                        
-												        ops.add(ContentProviderOperation
-												        		.newInsert(ContactsContract.Data.CONTENT_URI)
-								                                .withValueBackReference(ContactsContract.Data.RAW_CONTACT_ID, 0)
-								                                .withValue(ContactsContract.Data.MIMETYPE,ContactsContract.CommonDataKinds.Phone.CONTENT_ITEM_TYPE)
-								                                .withValue(ContactsContract.CommonDataKinds.Phone.NUMBER, jsa.getString(i))
-								                                .withValue(ContactsContract.CommonDataKinds.Phone.TYPE, null)
-								                                .build());
-												               }
-												              ops.add(ContentProviderOperation
-												            		  .newInsert(ContactsContract.Data.CONTENT_URI)
-												            		    .withValueBackReference(ContactsContract.Data.RAW_CONTACT_ID, 0)
-												            		    .withValue(ContactsContract.Data.MIMETYPE, ContactsContract.CommonDataKinds.Photo.CONTENT_ITEM_TYPE)
-												            		    .withValue(ContactsContract.CommonDataKinds.Photo.PHOTO,Base64.decode(data.getString("avatar"), Base64.DEFAULT))
-												            		    .build());
-												       getActivity().getContentResolver().applyBatch(ContactsContract.AUTHORITY, ops);
+								                		JSONArray jsa = new JSONArray(data.getString("numbers"));
+						                        		String[] numbers = new String[jsa.length()]; 
+										                for(int i=0;i<jsa.length();i++)
+										                {
+										            	  numbers[i] = jsa.getString(i);
+										                }
+											            CommonUtils.insetContact(getActivity(),data.getString("name") , numbers, Base64.decode(data.getString("avatar"), Base64.DEFAULT));
 								                		zmq.closeSocket();
 								                		if(progressDialog.isShowing())
 								                		{
@@ -605,10 +597,6 @@ public class ContactFragment extends Fragment {
 							                catch( JSONException e)
 							                {
 							                	e.printStackTrace();
-							                } catch (RemoteException e) {
-												e.printStackTrace();
-											} catch (OperationApplicationException e) {
-												e.printStackTrace();
 											}
 									}
 

@@ -117,6 +117,8 @@
         			android:shadowDx="0"
        	 			android:shadowDy="2"
        	 			android:shadowRadius="5"
+       	 			android:clickable="true"
+       	 			android:autoLink="email"
                     android:textColor="@android:color/black"
                     android:text="hejunhao0830@gmail.com" />
             </LinearLayout>
@@ -181,9 +183,26 @@
         			android:shadowDx="0"
        	 			android:shadowDy="2"
        	 			android:shadowRadius="5"
+       	 			android:autoLink="web"
                     android:textColor="@android:color/black"
                     android:text="http://weibo.com" />
             </LinearLayout>
+            
+
+            <Button
+                android:id="@+id/card_detail_save_to_contact_button"
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:background="@drawable/normal_button"
+                android:layout_below="@+id/card_detail_home_layout"
+                android:textStyle="bold"
+                android:layout_marginTop="10dp"
+                android:layout_marginLeft="30dp"
+                android:layout_marginRight="30dp"
+                android:textColor="@android:color/white"
+                android:gravity="center_vertical|center_horizontal"
+                android:textSize="20sp"
+                android:text="保存至联系人" />
 
         </RelativeLayout>
     </ScrollView>

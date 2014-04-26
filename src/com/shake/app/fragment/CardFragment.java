@@ -11,6 +11,7 @@ import android.app.ActionBar.LayoutParams;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.ActivityNotFoundException;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -20,8 +21,10 @@ import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.AdapterView;
@@ -35,6 +38,7 @@ import com.nostra13.universalimageloader.core.ImageLoader;
 import com.shake.app.Define;
 import com.shake.app.HomeApp;
 import com.shake.app.R;
+import com.shake.app.activity.CheckPhotoActivity;
 import com.shake.app.activity.MainActivity;
 import com.shake.app.activity.SetinfoActivity;
 import com.shake.app.adapter.CardAdapter;
@@ -42,6 +46,7 @@ import com.shake.app.db.CardDBManager;
 import com.shake.app.model.Card;
 import com.shake.app.task.InitCardsTask;
 import com.shake.app.task.InitCardsTask.OnTaskListener;
+import com.shake.app.utils.CommonUtils;
 import com.shake.app.utils.FileUtil;
 import com.shake.app.utils.ImageTools;
 import com.shake.app.utils.LocationTools;
@@ -115,6 +120,8 @@ public class CardFragment extends Fragment {
 	private TextView dialog_home;
 	
 	private ImageView dialog_avatar;
+	
+	private Button dialog_button;
 	
 	public static final int EDIT_REQUEST_CODE = 0x999;
 	
@@ -629,7 +636,7 @@ public class CardFragment extends Fragment {
 				@Override
 				public void onClick(DialogInterface dialog, int which) {
 					
-					AlertDialog detailDialog =new AlertDialog.Builder(getActivity()).create();
+					final AlertDialog detailDialog =new AlertDialog.Builder(getActivity()).create();
 					detailDialog.show();
 					dialogLayout = LayoutInflater.from(getActivity()).inflate(R.layout.card_detail,null);
 					
@@ -639,6 +646,7 @@ public class CardFragment extends Fragment {
 					dialog_birthday = (TextView)dialogLayout.findViewById(R.id.card_detail_birthday);
 					dialog_home = (TextView)dialogLayout.findViewById(R.id.card_detail_home);
 					dialog_avatar = (ImageView)dialogLayout.findViewById(R.id.card_detail_avatar);
+					dialog_button = (Button)dialogLayout.findViewById(R.id.card_detail_save_to_contact_button);
 					
 					
 					
@@ -653,9 +661,68 @@ public class CardFragment extends Fragment {
 					}
 					else
 					{
-						ImageLoader.getInstance().displayImage(FileUtil.getUriStringByPath(card.getAvatar()), dialog_avatar);
+						Bitmap avatar = ImageLoader.getInstance().loadImageSync(FileUtil.getUriStringByPath(card.getAvatar()));
+						avatar = ImageTools.getRoundedCornerBitmap(avatar, 20,128,128);
+						dialog_avatar.setImageBitmap(avatar);
+						dialog_avatar.setOnClickListener(new OnClickListener() {
+							
+							@Override
+							public void onClick(View v) {
+								
+								Intent intent = new Intent(getActivity(),CheckPhotoActivity.class);
+								intent.putExtra(CheckPhotoActivity.IMAGE_PATH,card.getAvatar());
+								startActivity(intent);
+							    getActivity().overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+							}
+						});
 					}
-					
+					dialog_mail.setOnTouchListener(new OnTouchListener() {
+						
+						@Override
+						public boolean onTouch(View v, MotionEvent event) {
+							try 
+							{
+								dialog_mail.onTouchEvent(event);
+							} 
+							catch (ActivityNotFoundException e) 
+							{
+								MyToast.alert("在您的设备上没有找到发送邮件的应用");
+							}
+							catch (Exception e) 
+							{
+								MyToast.alert("未知错误");
+							}
+							
+							return true;
+						}
+					});
+					dialog_button.setOnClickListener(new OnClickListener() {
+						
+						@Override
+						public void onClick(View v) {
+							
+							if(CommonUtils.insetContact(getActivity(), card.getName(),new String[]{card.getMobile()},FileUtil.fileToByteArray(card.getAvatar())))
+							{
+							
+						       MyToast.alert("联系人 "+card.getName()+" 已存入通讯录");
+						       detailDialog.dismiss();
+						       new Handler().postDelayed(new Runnable() {
+								
+								@Override
+								public void run() {
+									HomeApp.setContactsList(null);
+									((MainActivity)getActivity()).switchContent(new ContactFragment());
+								}
+						       }, 1000);
+							}
+							else
+							{
+								MyToast.alert("操作失败!");
+							}
+						       
+							
+						}
+					});
 					detailDialog.setContentView(dialogLayout);
 					
 					 WindowManager.LayoutParams lp = detailDialog.getWindow().getAttributes(); 
