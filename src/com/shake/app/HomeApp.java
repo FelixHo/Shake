@@ -22,7 +22,6 @@ import com.shake.app.model.Contact;
 import com.shake.app.model.Song;
 import com.shake.app.model.User;
 import com.shake.app.utils.FileUtil;
-import com.shake.app.utils.LocationTools;
 
 public class HomeApp extends Application {	
 	

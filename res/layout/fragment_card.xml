@@ -75,7 +75,7 @@
                 android:shadowDx="2"
                 android:shadowDy="2"
                 android:shadowRadius="5"
-                android:text="何俊浩"
+                android:text="张三"
                 android:textColor="@android:color/background_dark"
                 android:textSize="30sp" />
 
@@ -104,7 +104,7 @@
                 android:gravity="center_vertical"
                 android:marqueeRepeatLimit="marquee_forever"
                 android:singleLine="true"
-                android:text="15989080970"
+                android:text="15989080330"
                 android:textSize="12sp" />
 
             <TextView
@@ -118,7 +118,7 @@
                 android:gravity="center_vertical"
                 android:marqueeRepeatLimit="marquee_forever"
                 android:singleLine="true"
-                android:text="hejunhao0830@gmail.com"
+                android:text="zhangsan@gmail.com"
                 android:textSize="12sp" />
 
             <TextView
@@ -145,7 +145,7 @@
                 android:ellipsize="marquee"
                 android:marqueeRepeatLimit="marquee_forever"
                 android:singleLine="true"
-                android:text="http://weibo.com/532156716"
+                android:text="http://weibo.com/554242423"
                 android:textSize="12sp" />
         </LinearLayout>
 

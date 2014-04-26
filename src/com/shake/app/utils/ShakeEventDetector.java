@@ -18,13 +18,13 @@ public class ShakeEventDetector implements SensorEventListener {
 	  
 	private static ShakeEventDetector mShakeDector = new ShakeEventDetector();
 	// 速度阈值，当摇晃速度达到这值后产生作用
-	private static final int SPEED_SHRESHOLD = 2000;
+	private static final int MIN_SHAKE_SPEED = 2000;
 	// 两次检测的时间间隔
-	private static final int UPTATE_INTERVAL_TIME = 70;
+	private static final int MIN_DETECT_TIME = 70;
 	// 手机上一个位置时重力感应坐标
-	private float lastX;
-	private float lastY;
-	private float lastZ;
+	private float preX;
+	private float preY;
+	private float preZ;
 	// 上次检测时间
 	private long lastUpdateTime;
 	
@@ -42,9 +42,9 @@ public class ShakeEventDetector implements SensorEventListener {
 		// 现在检测时间
 		long currentUpdateTime = System.currentTimeMillis();
 		// 两次检测的时间间隔
-		long timeInterval = currentUpdateTime - lastUpdateTime;
+		long duration = currentUpdateTime - lastUpdateTime;
 		// 判断是否达到了检测时间间隔
-		if (timeInterval < UPTATE_INTERVAL_TIME)
+		if (duration < MIN_DETECT_TIME)
 			return;
 		// 现在的时间变成last时间
 		lastUpdateTime = currentUpdateTime;
@@ -55,19 +55,19 @@ public class ShakeEventDetector implements SensorEventListener {
 		float z = event.values[2];
 
 		// 获得x,y,z的变化值
-		float deltaX = x - lastX;
-		float deltaY = y - lastY;
-		float deltaZ = z - lastZ;
+		float difX = x - preX;
+		float difY = y - preY;
+		float difZ = z - preZ;
 
 		// 将现在的坐标变成last坐标
-		lastX = x;
-		lastY = y;
-		lastZ = z;
+		preX = x;
+		preY = y;
+		preZ = z;
 		//sqrt 返回最近的双近似的平方根
-		double speed = Math.sqrt(deltaX * deltaX + deltaY * deltaY + deltaZ	* deltaZ)/ timeInterval * 10000;
+		double speed = Math.sqrt(difX * difX + difY * difY + difZ	* difZ)/ duration * 10000;
 		
 		// 达到速度阀值，发出提示
-		if (speed >= SPEED_SHRESHOLD) {
+		if (speed >= MIN_SHAKE_SPEED) {
 			if(System.currentTimeMillis() - lastActTime >2000)
 			{
 				lastActTime = System.currentTimeMillis();

@@ -3,6 +3,7 @@ package com.shake.app.activity;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
+
 import com.shake.app.R;
 import com.shake.app.fragment.CardFragment;
 import com.shake.app.fragment.MenuFragment;
@@ -13,8 +14,6 @@ import com.shake.app.utils.MyActivityManager;
 import com.shake.app.utils.MyToast;
 import com.shake.app.utils.ShakeEventDetector;
 import com.shake.app.utils.ZMQConnection;
-
-import de.tavendo.autobahn.WebSocketConnection;
 
 public class MainActivity extends SlidingFragmentActivity {
 

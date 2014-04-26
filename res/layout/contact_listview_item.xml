@@ -53,7 +53,7 @@
         android:shadowDx="2"
         android:shadowDy="2"
         android:shadowRadius="5"
-        android:text="何俊浩" />
+        android:text="张三" />
 
     <TextView
         android:id="@+id/contact_listview_item_mobile"
@@ -66,7 +66,7 @@
         android:ellipsize="end"
         android:textColor="@color/dark_gray"
         android:drawableLeft="@drawable/icon_contact"
-        android:text="15989080970" />
+        android:text="15989080270" />
     
     </RelativeLayout>
     

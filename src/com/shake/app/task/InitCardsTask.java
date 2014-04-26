@@ -42,10 +42,6 @@ public class InitCardsTask extends AsyncTask<Context, Void, ArrayList<Card>> {
 		
 		cardDB = new CardDBManager(mContext);
 		
-//		cardDB.clearAll();//仅配合测试数据使用
-		
-//		initTestData();
-		
 		mCards = cardDB.queryAll();
 		
 		return mCards;
@@ -57,31 +53,5 @@ public class InitCardsTask extends AsyncTask<Context, Void, ArrayList<Card>> {
 		this.listener.onTaskFinished(result);
 		
 		cardDB.closeDB();
-	}
-
-	private void initTestData()
-	{
-		Card test = new Card();
-		test.avatar = "/storage/emulated/0/shake/app/pic/local_user_avatar_1397856727217.png";
-		test.name = "David"+"_"+System.currentTimeMillis();
-		test.profile = "Google PHP-Engineer";
-		test.mobile = "15989080977";
-		test.mail = "test@gmail.com";
-		test.birthday = "1988年11月2日";
-		test.homelink = "myhome.com.us";
-		cardDB.add(test);
-		cardDB.add(test);
-		cardDB.add(test);
-		cardDB.add(test);
-		cardDB.add(test);
-		cardDB.add(test);
-		cardDB.add(test);
-		cardDB.add(test);
-		cardDB.add(test);
-		cardDB.add(test);
-		cardDB.add(test);
-		cardDB.add(test);
-		cardDB.add(test);
-		cardDB.add(test);
 	}
 }
