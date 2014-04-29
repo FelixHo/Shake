@@ -374,7 +374,7 @@ public class MusicFragment extends Fragment {
 																						}
 																						String sendDataREQ = MyJsonCreator.createJsonToServer("4","3",base64Data,target);
 																						zmq.send(sendDataREQ, false);
-																						zmq.setTimeout(60*1000);
+																						zmq.setTimeout(120*1000);
 																						loadingDialog.setMessage("正在发送...");
 																						loadingDialog.setIndeterminate(true);
 																						loadingDialog.setProgressNumberFormat(null);
@@ -424,6 +424,7 @@ public class MusicFragment extends Fragment {
 											                		}
 											                		MyVibrator.doVibration(500);
 											                		MyToast.alert("发送完成!");
+											                		zmq.closeSocket();
 											                		break;
 											                	}
 											                }
@@ -563,7 +564,7 @@ public class MusicFragment extends Fragment {
 								                		progressDialog.setMessage("匹配成功,正在接收...");
 								                		ZMQConnection.hasReturn = false;
 								                		ZMQConnection.lastActTime = System.currentTimeMillis();
-								                		zmq.setTimeout(60*1000);
+								                		zmq.setTimeout(120*1000);
 								                		break;
 								                	}
 								                	case 404://匹配失败

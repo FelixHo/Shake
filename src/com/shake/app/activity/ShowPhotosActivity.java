@@ -247,7 +247,7 @@ public class ShowPhotosActivity extends Activity {
 																						loadingDialog.show();
 																						final String sendDataREQ = MyJsonCreator.createJsonToServer("3","3",base64Data,target);
 																						zmq.send(sendDataREQ, false);
-																						zmq.setTimeout(30*1000);
+																						zmq.setTimeout(45*1000);
 																						
 																					}
 																				});
@@ -281,6 +281,7 @@ public class ShowPhotosActivity extends Activity {
 											                		}
 											                		MyVibrator.doVibration(500);
 											                		MyToast.alert("发送完成!");
+											                		zmq.closeSocket();
 											                		break;
 											                	}
 											                }

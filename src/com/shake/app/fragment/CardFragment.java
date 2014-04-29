@@ -381,6 +381,7 @@ public class CardFragment extends Fragment {
 								                		}
 								                		MyVibrator.doVibration(500);
 								                		MyToast.alert("发送完成!");
+								                		zmq.closeSocket();
 								                		break;
 								                	}
 								                }
